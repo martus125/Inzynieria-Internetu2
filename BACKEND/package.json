@@ -2,15 +2,20 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "script/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "dev": "nodemon script/index.js",
+    "start": "node script/index.js"
   },
   "author": "martus",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
+    "express-session": "^1.17.3",
     "mysql": "^2.18.1",
     "nodemon": "^3.1.10"
   }
