@@ -4,10 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
-
-   <link rel="stylesheet" href="../styles/styles.css" />
-
+    <link rel="stylesheet" href="../styles/styles.css" />
     <title>Hotel Olimp</title>
+    <style>
+      nav{ transition: opacity .22s ease, transform .22s ease; }
+      nav.nav--hidden{ opacity:0; transform: translateY(-14px); pointer-events:none; }
+    </style>
   </head>
   <body>
     <nav>
@@ -24,7 +26,7 @@
         <ul class="nav__links" id="nav--links">
           <li><a href="index.html" class="active">Home</a></li>
           <li><a href="../pages/onas.html">O nas</a></li>
-          <li><a href="../pages/pokoje.html">Pokoje</a></li>
+          <li><a href="../pages/pokoj.html">Pokój</a></li>
           <li><a href="../pages/menu.html">Menu</a></li>
           <li><a href="../pages/eventy.html">Eventy</a></li>
           <li><a href="../pages/kontakt.html">Kontakt</a></li>
@@ -42,12 +44,63 @@
       <a class="btn" href="../pages/onas.html">Interaktywny spacer? czy cos</a>
     </section>
 
+    <section class="about-block">
+      <div class="about__inner">
+        <h2 class="about__title">HOTEL OLIMP</h2>
+        <p class="about__subtitle">RODZINNY ODPOCZYNEK NAD MORZEM</p>
+        <p class="about__lead">
+          Hotel Olimp to połączenie nowoczesnych, przytulnych wnętrz z wyjątkową lokalizacją tuż przy plaży.
+          Zimą pozwala odetchnąć od codzienności, latem zachwyca bliskością natury i widokami na morze.
+          U nas odpoczniesz tak, jak lubisz — aktywnie, rodzinnie lub totalnie na chill.
+        </p>
+        <a class="btn btn--outline" href="../pages/pokoj.html">SPRAWDŹ TERMINY</a>
+      </div>
+    </section>
+
+    <section class="grid-cards">
+      <article class="card"><h3>Rodzinne apartamenty</h3><p>Przestronne pokoje.</p></article>
+      <article class="card"><h3>Strefa relaksu</h3><p>Sauna i jacuzzi.</p></article>
+      <article class="card"><h3>Restauracja &amp; bar</h3><p>Świeże menu.</p></article>
+    </section>
+
     <script>
-      const btn = document.getElementById('menu-btn');
-      const links = document.getElementById('nav--links');
+    (function () {
+      var btn   = document.getElementById('menu-btn');
+      var links = document.getElementById('nav--links');
+      var nav   = document.querySelector('nav');
+
+      var HIDE_AFTER = 0;
+      var DELTA      = 1;
+
+      var lastY = window.scrollY || 0;
+
       if (btn && links) {
-        btn.addEventListener('click', () => links.classList.toggle('open'));
+        btn.addEventListener('click', function () {
+          links.classList.toggle('open');
+        });
       }
+
+      window.addEventListener('scroll', function () {
+        var y  = window.scrollY || window.pageYOffset;
+        var dy = y - lastY;
+
+        if (links && links.classList.contains('open')) {
+          nav && nav.classList.remove('nav--hidden');
+          lastY = y;
+          return;
+        }
+
+        if (y <= HIDE_AFTER) {
+          nav && nav.classList.remove('nav--hidden');
+        } else if (dy > DELTA) {
+          nav && nav.classList.add('nav--hidden');
+        } else if (dy < -DELTA) {
+          nav && nav.classList.remove('nav--hidden');
+        }
+
+        lastY = y;
+      });
+    })();
     </script>
   </body>
 </html>

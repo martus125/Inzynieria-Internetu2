@@ -29,3 +29,9 @@ app.listen(8800, () =>{
 
     console.log("Connected supi brawo!!")
 })
+
+fetch('http://localhost:3000/api/auth/logout',{method:'POST',credentials:'include'})
+  .then(()=>location.reload());
+  
+fetch('http://localhost:3000/api/auth/me',{credentials:'include'})
+  .then(r=>r.ok?r.json():null).then(d=>console.log(d?.user));
