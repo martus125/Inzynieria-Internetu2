@@ -30,18 +30,83 @@
       </ul>
     </div>
   </nav>
+<section class="hero hero--center">
+        <div class="eyebrow">Biznes i Wypoczynek</div>
+        <h1 class="header-title">Sale Konferencyjne i Wydarzenia</h1>
+        <p class="header-subtitle">Oferujemy profesjonalne zaplecze do organizacji eventów, spotkań biznesowych i przyjęć okolicznościowych.</p>
+        <button class="btn premium-btn">Zapytaj o dostępność Sali</button>
+    </section>
 
-  <section class="hero">
-    <div class="eyebrow">Podstrona testowa</div>
-    <h1>Eventy</h1>
-    <p>Informacje o salach i wydarzeniach. (Treść testowa)</p>
-    <a class="btn" href="logowanie.html">Rejestracja</a>
-  </section>
+   <section class="grid-cards event-grid">
 
-  <script>
-    const btn = document.getElementById('menu-btn');
-    const links = document.getElementById('nav--links');
-    if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));
-  </script>
+        <div class="events-main-column">
+            
+            <article class="card event-card event-card--wide">
+                <h3 class="card-title-alt"><i class="ri-building-line"></i> Sala Kryształowa</h3>
+                <p>Największa i najbardziej elegancka sala bankietowa. Idealna na duże konferencje, gale i wesela (do 200 osób). Wyposażona w rzutnik 4K, profesjonalne nagłośnienie i indywidualną klimatyzację. </p>
+                <ul class="facility-list">
+                    <li><i class="ri-check-line"></i> Pojemność: 200 osób</li>
+                    <li><i class="ri-check-line"></i> Sprzęt Audiowizualny Premium</li>
+                    <li><i class="ri-check-line"></i> Możliwość podziału na dwie mniejsze sekcje</li>
+                </ul>
+                <button class="btn light-btn">Zobacz Układy Sali</button>
+            </article>
+
+            <div class="events-small-cards-row">
+                <article class="card event-card">
+                    <h3 class="card-title-alt"><i class="ri-group-line"></i> Sala Kameralna</h3>
+                    <p>Idealne miejsce na spotkania zarządu, małe szkolenia i kolacje biznesowe (do 30 osób). Zapewnia intymność i wysoki komfort pracy.</p>
+                    <ul class="facility-list">
+                        <li><i class="ri-check-line"></i> Pojemność: 30 osób</li>
+                        <li><i class="ri-check-line"></i> Prywatny aneks kawowy</li>
+                    </ul>
+                </article>
+
+                <article class="card event-card">
+                    <h3 class="card-title-alt"><i class="ri-plant-line"></i> Ogród Zimowy</h3>
+                    <p>Przestrzeń eventowa z przeszklonym dachem i bogatą roślinnością. Idealna na przyjęcia weselne w stylu rustykalnym i bankiety (do 80 osób).</p>
+                    <ul class="facility-list">
+                        <li><i class="ri-check-line"></i> Pojemność: 80 osób</li>
+                        <li><i class="ri-check-line"></i> Naturalne światło i widok</li>
+                    </ul>
+                </article>
+            </div>
+            
+        </div>
+        
+        <article class="card event-card event-card--sidebar">
+            <h3 class="card-title-alt"><i class="ri-calendar-event-line"></i> Nadchodzące Wydarzenia</h3>
+            <ul class="event-list">
+                <li>
+                    <strong>05.12</strong> | Wieczór z fortepianem i Jazzem
+                    <span class="event-type">Rozrywka</span>
+                </li>
+                <li>
+                    <strong>12.12</strong> | Degustacja Win Regionalnych
+                    <span class="event-type">Gastronomia</span>
+                </li>
+                <li>
+                    <strong>18.12</strong> | Otwarte warsztaty kulinarne
+                    <span class="event-type">Warsztaty</span>
+                </li>
+                <li>
+                    <strong>24.12</strong> | Uroczysta Kolacja Wigilijna
+                    <span class="event-type">Specjalne</span>
+                </li>
+            </ul>
+            <button class="btn premium-btn" style="margin-top: 20px;">Pełny Kalendarz</button>
+        </article>
+    </section>
+
+       
+    <section style="height: 100px;"></section>
+
+    <script>
+        (function(){
+            const btn = document.getElementById('menu-btn');
+            const links = document.getElementById('nav--links');
+            if (btn && links) btn.addEventListener('click', ()=> links.classList.toggle('open'));
+        })();
+    </script>
 </body>
 </html>

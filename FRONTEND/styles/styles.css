@@ -296,3 +296,569 @@ nav{
 nav { transition: opacity .22s ease, transform .22s ease; }
 nav.nav--hidden { opacity: 0; transform: translateY(-14px); pointer-events: none; }
 
+/* ===== STYLIZACJA STRONY POKOJE ===== */
+
+/* KONTENER KAFELKÓW (ZAMIAST JASNEGO TŁA) */
+.room-categories-grid {
+    /* Ustawienie siatki (grid-cards jest już zdefiniowane) */
+    max-width: 1000px;
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 120px;
+    
+    /* Usuwamy białe tło i dodajemy półprzezroczyste */
+    background: transparent;
+    
+    /* Centrowanie kontenera na stronie */
+    display: grid;
+    place-items: center;
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+}
+
+/* KARTA TYPU POKOJU (Z EFEKTEM PÓŁPRZEZROCZYSTOŚCI) */
+.room-card {
+    /* Używamy półprzezroczystej bieli dla tła */
+    background: rgba(255, 255, 255, 0.7); /* Półprzezroczysty biały */
+    backdrop-filter: blur(4px); /* Lekkie rozmycie tła za kartą */
+    -webkit-backdrop-filter: blur(4px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); /* Mocniejszy cień dla efektu 3D/uniesienia */
+    
+    /* Stylizacja tekstu wewnątrz karty, aby był czytelny na jasnym tle */
+    color: #1f2937; 
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-5px); /* Lekkie uniesienie na najechanie */
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); 
+}
+
+.room-card h3 {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #0b1220;
+}
+
+.room-card p {
+    color: #4b5563;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+/* PRZYCISK GALERII (dziedziczy styl premium-btn, ale dodajemy margines) */
+.room-btn {
+    margin-top: auto; /* Wyrównanie przycisków na dole karty */
+    width: 80%;
+}
+
+/* RESPONSYWNOŚĆ DLA KAFELKÓW POKOJÓW */
+@media (max-width: 1050px) {
+    .room-categories-grid {
+        grid-template-columns: 1fr 1fr;
+        max-width: 700px;
+    }
+}
+@media (max-width: 700px) {
+    .room-categories-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+
+
+/* ===== STYLIZACJA MODALU GALERII (Dodatek interaktywny) ===== */
+
+.gallery-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.85); /* Ciemne, półprzezroczyste tło */
+    z-index: 2000;
+    display: none; /* Ukryte domyślnie, pokazywane przez JS */
+    place-items: center;
+    overflow-y: auto;
+}
+
+.gallery-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 90%;
+    width: 1000px;
+    margin: 40px 0;
+    position: relative;
+    color: #0b1220;
+}
+
+.gallery-content h2 {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    margin-top: 0;
+    font-size: 28px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: #0b1220;
+}
+.close-btn:hover {
+    color: #d6a54c;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* TUTAJ DODASZ STYLIZACJĘ DLA ZDJĘĆ GALERII (jeśli je wstawisz) */
+.image-grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* ===== STYLIZACJA STRONY KONTAKT ===== */
+
+/* Kontener główny dla kafelków */
+.contact-info-grid {
+    /* Ustawienia siatki dziedziczone z .room-categories-grid (jeśli jest niżej) */
+    max-width: 1100px;
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 120px;
+    background: transparent;
+    
+    /* Konfiguracja siatki */
+    display: grid;
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+    gap: 30px;
+    margin: 20px auto 0;
+}
+
+/* Karta Kontaktowa (półprzezroczysta) */
+.contact-card {
+    /* Używamy stylów półprzezroczystych kart z Pokoje */
+    background: rgba(255, 255, 255, 0.75); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    color: #1f2937; /* Ciemny tekst */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; /* Wypełnienie całej wysokości siatki */
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); 
+}
+
+/* Tytuły kart (z ikonami) */
+.card-title-alt {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #0b1220;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.card-title-alt i {
+    font-size: 28px;
+    color: #fbbf24; /* Kolor akcentu */
+}
+
+/* Szczegóły Kontaktowe */
+.contact-details p {
+    margin: 8px 0;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #374151;
+}
+.contact-details a {
+    color: #10b981; /* Zielony akcent dla linków */
+    text-decoration: none;
+    font-weight: 600;
+}
+.contact-details a:hover {
+    text-decoration: underline;
+}
+
+/* Lista Lokalizacji */
+.location-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0;
+}
+.location-list li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #374151;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+}
+.location-list li i {
+    font-size: 20px;
+    color: #fbbf24;
+    margin-top: 2px;
+}
+
+/* Przycisk (dziedziczy .premium-btn) */
+.contact-card .btn {
+    margin-top: auto; /* Wyrównanie przycisku na dole karty */
+    width: 100%;
+    align-self: flex-end; /* Wyrównanie w dół */
+}
+
+/* RESPONSYWNOŚĆ DLA KONTAKTU */
+@media (max-width: 1050px) {
+    .contact-info-grid {
+        grid-template-columns: 1fr 1fr;
+        max-width: 700px;
+    }
+}
+
+@media (max-width: 760px) {
+    .contact-info-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+/* ===== STYLIZACJA STRONY MENU ===== */
+
+/* Kontener główny dla dań (3 kolumny) */
+.grid-menu-meals {
+    max-width: 1100px;
+    margin: 20px auto 40px;
+    padding-top: 10px;
+    background: transparent;
+    
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* Kontener główny dla napojów (1 lub 2 kolumny) */
+.grid-menu-drinks {
+    max-width: 1100px;
+    margin: 20px auto 120px;
+    padding-top: 10px;
+    background: transparent;
+    
+    /* Na dużych ekranach dwie kolumny, aby nie było za szeroko */
+    grid-template-columns: repeat(2, minmax(300px, 1fr)); 
+    gap: 30px;
+}
+
+/* Karta Menu (półprzezroczysta) - dziedziczy z .contact-card / .room-card */
+.menu-card {
+    /* Używamy półprzezroczystej bieli */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); 
+    color: #1f2937;
+    height: 100%;
+}
+.menu-card h3.card-title-alt {
+    margin-bottom: 25px; /* Większy odstęp pod nagłówkiem */
+}
+.menu-card h4 {
+    color: #0b1220;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    font-size: 18px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Lista dań */
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.menu-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1); /* Delikatna przerywana linia */
+    font-size: 16px;
+    color: #374151;
+}
+
+.menu-list li:last-child {
+    border-bottom: none;
+}
+
+/* Wyróżnienie ceny */
+.menu-list li strong {
+    color: #0b1220;
+    font-weight: 700;
+}
+
+/* Responsywność dla menu */
+@media (max-width: 1150px) {
+    .grid-menu-meals {
+        grid-template-columns: 1fr 1fr;
+        max-width: 700px;
+    }
+}
+
+@media (max-width: 800px) {
+    .grid-menu-drinks {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 600px) {
+    .grid-menu-meals {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+
+/* ===== STYLIZACJA STRONY LOGOWANIA (AUTH) ===== */
+
+/* Kontener siatki dla formularzy logowania/rejestracji */
+.auth-grid {
+    max-width: 800px;
+    margin: 20px auto 120px;
+    padding-top: 10px;
+    background: transparent;
+    
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dwie równe kolumny */
+    gap: 30px;
+    align-items: flex-start; /* Dopasowanie do góry */
+}
+
+/* Karta Logowania/Rejestracji (półprzezroczysta) */
+.auth-card {
+    /* Używamy stylów z Pokoje/Kontakt/Menu */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); 
+    color: #1f2937;
+    height: auto; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); 
+}
+
+.auth-card h3.card-title-alt {
+    color: #0b1220;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+.auth-card p {
+    color: #4b5563;
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+/* Formularz */
+.auth-form label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #0b1220;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-sizing: border-box; /* Ważne, aby padding nie powiększał inputu */
+    font-size: 16px;
+    background: #fff;
+}
+
+.auth-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Komunikaty zwrotne (success/error) */
+.auth-message {
+    text-align: center;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Akcje dodatkowe (Kim Jestem/Wyloguj) */
+.auth-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.auth-actions .btn {
+    width: 50%;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+/* Responsywność */
+@media (max-width: 850px) {
+    .auth-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+/* ===== STYLIZACJA STRONY EVENTY ===== */
+
+.event-grid {
+    max-width: 1100px;
+    margin: 20px auto 120px;
+    padding-top: 10px;
+    background: transparent;
+    
+    /* Siatka z dwoma kolumnami */
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 2/3 szerokości dla głównej sekcji, 1/3 dla bocznej */
+    gap: 30px;
+    align-items: start;
+}
+
+/* Karta Eventu (półprzezroczysta) - bazuje na dotychczasowych stylach */
+.event-card {
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); 
+    color: #1f2937;
+    height: auto;
+}
+
+/* Duża sala, która rozciąga się na dwa wiersze */
+.event-card--wide {
+    grid-column: 1 / 2; /* Pozostaje w pierwszej kolumnie */
+    grid-row: span 1;
+}
+
+/* Kafelki mniejszych sal (dwa pod sobą w pierwszej kolumnie) */
+.event-grid article:nth-child(3), 
+.event-grid article:nth-child(4) {
+    grid-column: 1 / 2;
+}
+
+/* Lista udogodnień i cech sali */
+.facility-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+.facility-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    color: #4b5563;
+    font-size: 15px;
+}
+.facility-list li i {
+    color: #10b981; /* Zielony akcent (ikona) */
+    font-size: 18px;
+}
+
+/* Stylizacja listy wydarzeń (kalendarz) */
+.event-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+.event-list li {
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    line-height: 1.4;
+}
+.event-list li strong {
+    color: #0b1220;
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.event-type {
+    display: inline-block;
+    background: #fef3c7; /* Jasnożółte tło */
+    color: #b45309; /* Ciemnożółty tekst */
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+
+/* RESPONSYWNOŚĆ dla Eventy */
+@media (max-width: 1000px) {
+    .event-grid {
+        /* Przechodzimy na jeden główny rząd z boku */
+        grid-template-columns: 2fr 1fr;
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 760px) {
+    .event-grid {
+        /* W układzie mobilnym kafelki idą jeden pod drugim */
+        grid-template-columns: 1fr;
+        max-width: 450px;
+    }
+    .event-card--wide {
+        grid-column: 1 / 2;
+        grid-row: span 1;
+    }
+    .event-grid article:nth-child(2) { /* Kalendarz ląduje po dużej sali */
+        grid-column: 1 / 2;
+    }
+    .event-grid article:nth-child(3), 
+    .event-grid article:nth-child(4) {
+        grid-column: 1 / 2;
+    }
+}

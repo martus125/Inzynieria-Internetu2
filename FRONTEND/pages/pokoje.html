@@ -35,8 +35,8 @@
   <section class="hero">
     <div class="eyebrow">Podstrona testowa</div>
     <h1>Pokoje</h1>
-    <p>Sprawdź nasze przykładowe typy pokoi. (Treść testowa)</p>
-    <a class="btn" href="pokoje.html">Zapytaj o dostępność</a>
+    <p>Sprawdź naszą ofertę pokoi oraz przejdź do galerii!</p>
+
   </section>
 
   <script>
@@ -45,4 +45,40 @@
     if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));
   </script>
 </body>
+
+
+<section class="grid-cards room-categories-grid">
+
+    <article class="card room-card">
+        <h3>Apartamenty</h3>
+        <p>Ekskluzywne, przestronne wnętrza z panoramicznym widokiem. Idealne dla rodzin i osób ceniących luksus.</p>
+        <button class="btn room-btn premium-btn" data-category="apartamenty">Zobacz Galerię</button>
+    </article>
+
+    <article class="card room-card">
+        <h3>Pokoje Premium</h3>
+        <p>Komfortowe pokoje dwuosobowe z dostępem do tarasu i pełnym wyposażeniem hotelowym.</p>
+        <button class="btn room-btn premium-btn" data-category="pokoje">Zobacz Galerię</button>
+    </article>
+
+    <article class="card room-card">
+        <h3>Domki Letniskowe</h3>
+        <p>Całoroczne, niezależne domki z aneksem kuchennym i prywatnym ogrodem. Pełna swoboda i prywatność.</p>
+        <button class="btn room-btn premium-btn" data-category="domki">Zobacz Galerię</button>
+    </article>
+
+</section>
+
+<div id="gallery-modal" class="gallery-overlay">
+    <div class="gallery-content">
+        <button id="close-gallery" class="close-btn">×</button>
+        <h2>Galeria zdjęć <span id="gallery-title"></span></h2>
+        <div id="gallery-images" class="image-grid">
+            </div>
+    </div>
+</div>
+
+<script>
+    // ... (pozostały kod JS, np. do nawigacji, zostaje bez zmian)
+</script>
 </html>
