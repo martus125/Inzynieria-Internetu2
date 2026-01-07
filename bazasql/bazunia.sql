@@ -1,1 +1,0 @@
-uzytkownicySELECT * FROM uzytkownicy.uzytkownicy;
