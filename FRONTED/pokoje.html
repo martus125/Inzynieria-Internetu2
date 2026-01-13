@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- z pages/ cofamy się do styles/ -->
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./pokoje-page.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
   <title>Pokoje | Hotel Olimp</title>
 </head>
-<body>
+
+<body class="rooms-page">
   <nav>
     <div class="nav__bar">
       <div class="nav__header">
@@ -22,7 +23,7 @@
       </div>
 
       <ul class="nav__links" id="nav--links">
-        <li><a href="../src/index.html">Home</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="onas.html">O nas</a></li>
         <li><a href="pokoje.html" class="active">Pokoje</a></li>
         <li><a href="menu.html">Menu</a></li>
@@ -32,53 +33,578 @@
     </div>
   </nav>
 
-  <section class="hero">
-    <div class="eyebrow">Podstrona testowa</div>
-    <h1>Pokoje</h1>
-    <p>Sprawdź naszą ofertę pokoi oraz przejdź do galerii!</p>
+  <div class="rooms-wrap">
+    <!-- filtr -->
+    <aside class="rooms-filter">
+      <h3>Wyszukaj wolne pokoje</h3>
 
-  </section>
+      <div class="field">
+        <label>Data od</label>
+        <input type="date" id="from">
+      </div>
+
+      <div class="field">
+        <label>Data do</label>
+        <input type="date" id="to">
+      </div>
+
+      <div class="field">
+        <label>Dorośli</label>
+        <select id="adults">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Dzieci</label>
+        <select id="children">
+          <option value="0" selected>0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <button class="search-btn" id="searchBtn">Szukaj</button>
+
+      <div class="note" id="loginNote"></div>
+
+      <hr style="border:0;border-top:1px solid rgba(0,0,0,.08);margin:14px 0">
+
+      <div class="note" id="myResTitle" style="font-weight:800"></div>
+      <div class="note" id="myResList"></div>
+    </aside>
+
+    <!-- lista -->
+    <main class="rooms-list" id="roomsList"></main>
+  </div>
+
+  <!-- MODAL: formularz rezerwacji -->
+  <div class="modal" id="bookModal" aria-hidden="true">
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__head">
+        <div class="modal__title" id="modalTitle">Rezerwacja pokoju</div>
+        <button class="modal__close" id="modalClose" aria-label="Zamknij">×</button>
+      </div>
+
+      <div class="modal__body">
+        <div class="modal__hint" id="modalSummary"></div>
+
+        <div class="modal__grid">
+          <div>
+            <label style="font-size:13px;color:#334155">Imię</label>
+            <input id="mFirstName" placeholder="np. Marta" autocomplete="given-name">
+          </div>
+          <div>
+            <label style="font-size:13px;color:#334155">Nazwisko</label>
+            <input id="mLastName" placeholder="np. Jędrys" autocomplete="family-name">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:13px;color:#334155">Telefon (opcjonalnie)</label>
+          <input
+            id="mPhone"
+            placeholder="np. 500 600 700"
+            autocomplete="tel"
+            inputmode="numeric"
+            maxlength="11"
+          >
+        </div>
+
+        <div>
+          <label style="font-size:13px;color:#334155">Uwagi (opcjonalnie)</label>
+          <textarea id="mNotes" placeholder="np. późne zameldowanie"></textarea>
+        </div>
+
+        <div class="modal__hint" id="modalError" style="color:#b91c1c;font-weight:700"></div>
+      </div>
+
+      <div class="modal__actions">
+        <button class="btn-secondary" id="modalCancel" type="button">Anuluj</button>
+        <button class="btn-primary" id="modalConfirm" type="button">Potwierdź rezerwację</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: sukces -->
+  <div class="modal" id="okModal" aria-hidden="true">
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="okTitle">
+      <div class="modal__head">
+        <div class="modal__title" id="okTitle">Rezerwacja potwierdzona ✅</div>
+        <button class="modal__close" id="okClose" aria-label="Zamknij">×</button>
+      </div>
+      <div class="modal__body">
+        <div id="okText" style="line-height:1.6;color:#0b1220;font-family:system-ui"></div>
+      </div>
+      <div class="modal__actions">
+        <button class="btn-primary" id="okBtn" type="button">OK</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const btn = document.getElementById('menu-btn');
-    const links = document.getElementById('nav--links');
-    if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));
+    const API = ""; // otwierasz z http://localhost:3000/...
+
+    async function req(path, opts={}){
+      const r = await fetch(API + path, { credentials:"include", ...opts });
+      let body = {};
+      try { body = await r.json(); } catch(e){}
+      return { ok: r.ok, status: r.status, body };
+    }
+
+    function toYMDLocal(date){
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function todayISO(){
+      return toYMDLocal(new Date());
+    }
+
+    function plusDaysISO(days){
+      const d = new Date();
+      d.setHours(12, 0, 0, 0);
+      d.setDate(d.getDate() + days);
+      return toYMDLocal(d);
+    }
+
+    // normalizacja nazw (usuwa polskie znaki) – żeby mapowanie zawsze działało
+    function normType(s){
+      return String(s || "")
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function formatPhone9(digits){
+      if (!digits || digits.length !== 9) return digits || "";
+      return digits.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
+    }
+
+    function formatPhonePartial(digits){
+      const d = (digits || "").slice(0,9);
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return d.slice(0,3) + " " + d.slice(3);
+      return d.slice(0,3) + " " + d.slice(3,6) + " " + d.slice(6);
+    }
+
+    // ====== login info
+    async function checkLogin(){
+      const me = await req("/api/auth/me");
+      const note = document.getElementById("loginNote");
+      if (!me.ok){
+        note.textContent = "Aby rezerwować, zaloguj się (zakładka Logowanie).";
+        return null;
+      }
+      note.textContent = "Zalogowany jako: " + me.body.user.login;
+      return me.body.user;
+    }
+
+    // ====== zdjęcia (1..3) – hover użyje 1 i 2
+    const ROOM_PHOTOS = {
+      "Apartamenty Comfort": ["/images/comfort1.jpg", "/images/comfort2.jpg", "/images/comfort3.jpg"],
+      "Apartament typu Royal": ["/images/royal1.jpg", "/images/royal2.jpg", "/images/royal3.jpg"],
+      "Apartament z 1 sypialnia": ["/images/jednasypialnia1.jpg", "/images/jednasypialnia2.jpg", "/images/jednasypialnia3.jpg"],
+      "Apartament z 2 sypialniami": ["/images/dwasypialnia1.jpg", "/images/dwasypialnia2.jpg", "/images/dwasypialnia3.jpg"],
+      "Pokoj jednoosobowy": ["/images/jedosobowy1.jpg", "/images/jedosobowy2.jpg", "/images/jedosobowy3.jpg"],
+      "Pokoj dwuosobowy": ["/images/dwuosobowy1.jpg", "/images/dwuosobowy2.jpg", "/images/dwuosobowy3.jpg"],
+      "Pokoj trzyosobowy": ["/images/trzyosobowy1.jpg", "/images/trzyosobowy2.jpg", "/images/trzyosobowy3.jpg"],
+      "Pokoj czteroosobowy": ["/images/czteroosobowy1.jpg", "/images/czteroosobowy2.jpg", "/images/czteroosobowy3.jpg"],
+    };
+
+    // fallback gdyby czegoś nie było w ROOM_PHOTOS
+    const IMG = {
+      "Apartamenty Comfort": "/images/comfort1.jpg",
+      "Apartament typu Royal": "/images/royal1.jpg",
+      "Apartament z 1 sypialnia": "/images/jedsypialnia1.jpg",
+      "Apartament z 2 sypialniami": "/images/dwasypialnia1.jpg",
+      "Pokoj jednoosobowy": "/images/jedosobowy1.jpg",
+      "Pokoj dwuosobowy": "/images/dwuosobowy1.jpg",
+      "Pokoj trzyosobowy": "/images/trzyosobowy1.jpg",
+      "Pokoj czteroosobowy": "/images/czteroosobowy1.jpg",
+    };
+
+    // ====== stan modala
+    const state = {
+      roomType: null,
+      from: null,
+      to: null,
+      adults: 2,
+      children: 0,
+      priceFrom: 0
+    };
+
+    function openModal(id){
+      const m = document.getElementById(id);
+      m.classList.add("open");
+      m.setAttribute("aria-hidden", "false");
+    }
+    function closeModal(id){
+      const m = document.getElementById(id);
+      m.classList.remove("open");
+      m.setAttribute("aria-hidden", "true");
+    }
+
+    function setModalSummary(){
+      const s = document.getElementById("modalSummary");
+      const nights = Math.round((new Date(state.to) - new Date(state.from)) / (1000*60*60*24));
+      const totalGuests = state.adults + state.children;
+      s.innerHTML = `
+        <div style="font-weight:900;margin-bottom:6px">${state.roomType}</div>
+        <div>Termin: <b>${state.from}</b> → <b>${state.to}</b> (${nights} noc)</div>
+        <div>Goście: <b>${totalGuests}</b> (dorośli: ${state.adults}, dzieci: ${state.children})</div>
+        <div style="margin-top:6px;color:#475569">Cena od: <b>${state.priceFrom} €</b> / noc (dokładna suma policzy się automatycznie)</div>
+      `;
+    }
+
+    function showModalError(msg){
+      document.getElementById("modalError").textContent = msg || "";
+    }
+
+   function cardHTML(item){
+  const available = Number(item.Dostepne || 0);
+  const priceFrom = Number(item.CenaOd || 0);
+
+  const typeRaw = String(item.TypPokoju || "").trim();
+  const key = normType(typeRaw);
+
+  const photos = ROOM_PHOTOS[key] || ROOM_PHOTOS[typeRaw] || null;
+
+  // bierzemy max 3 fotki
+  const imgs = (photos && photos.length ? photos : [IMG[key] || IMG[typeRaw] || "/images/beach.jpg"])
+    .filter(Boolean)
+    .slice(0, 3);
+
+  const p1 = imgs[0] || "/images/beach.jpg";
+  const dataImgs = imgs.join("|"); // zapisujemy jako "img1|img2|img3"
+
+  return `
+    <article class="room-card">
+      <div class="room-media">
+        <img class="room-img"
+             src="${p1}"
+             data-imgs="${dataImgs}"
+             alt="${typeRaw}"
+             onerror="this.src='/images/beach.jpg'">
+
+        <div class="gallery">ZOBACZ GALERIĘ <span style="opacity:.7; font-weight:600">2 FOTKI</span></div>
+      </div>
+
+      <div class="room-body">
+        <div>
+          <h3 class="room-title">${typeRaw}</h3>
+          <div class="room-meta">
+            <span>Dostępne pokoje: ${available}</span>
+            <span>Możliwość wpłaty zaliczki od 50% ceny całkowitej!</span>
+          </div>
+          <p class="room-desc">
+            ${item.Opis || "Wybierz termin, aby sprawdzić dostępność i zarezerwować."}
+          </p>
+        </div>
+
+        <div>
+          <div class="room-price">
+            <div class="from">od <span class="val">${priceFrom} €</span> <small>/ 1 noc</small></div>
+          </div>
+          <div class="room-cta">
+            <button class="offer-btn"
+              data-type="${typeRaw}"
+              data-price="${priceFrom}"
+              ${available>0 ? "" : "disabled"}
+              style="${available>0 ? "" : "opacity:.55;cursor:not-allowed"}">
+              <i class="ri-calendar-check-line"></i> Zarezerwuj pokój
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+
+    async function search(){
+      const from = document.getElementById("from").value;
+      const to = document.getElementById("to").value;
+      const adults = Number(document.getElementById("adults").value);
+      const children = Number(document.getElementById("children").value);
+      const guests = adults + children;
+
+      const listEl = document.getElementById("roomsList");
+      listEl.innerHTML = "Ładowanie...";
+
+      const res = await req(`/api/rooms/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&guests=${encodeURIComponent(guests)}`);
+      if (!res.ok){
+        listEl.innerHTML = `<div style="color:#b91c1c;font-family:system-ui">Błąd: ${res.body.error || "nieznany"}</div>`;
+        return;
+      }
+
+      listEl.innerHTML = res.body.items.map(cardHTML).join("");
+
+     // HOVER: 1→2→3 co 1s, po zjechaniu wraca na 1
+listEl.querySelectorAll(".room-media").forEach(media => {
+  const img = media.querySelector(".room-img");
+  if (!img) return;
+
+  const imgs = (img.dataset.imgs || "")
+    .split("|")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (imgs.length <= 1) return;
+
+  let idx = 0;
+  let timer = null;
+
+  const start = () => {
+    if (timer) return;          // nie odpalaj drugi raz
+    idx = 0;
+
+    // od razu pokaż 2 zdjęcie (żeby efekt był natychmiast)
+    idx = (idx + 1) % imgs.length;
+    img.src = imgs[idx];
+
+    timer = setInterval(() => {
+      idx = (idx + 1) % imgs.length;
+      img.src = imgs[idx];
+    }, 1000);
+  };
+
+  const stop = () => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    idx = 0;
+    img.src = imgs[0];          // wracamy do 1 zdjęcia
+  };
+
+  media.addEventListener("mouseenter", start);
+  media.addEventListener("mouseleave", stop);
+});
+
+
+      // klik w rezerwuj -> modal
+      listEl.querySelectorAll(".offer-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const user = await checkLogin();
+          if (!user){
+            location.href = "logowanie.html";
+            return;
+          }
+
+          state.roomType = btn.dataset.type;
+          state.priceFrom = Number(btn.dataset.price || 0);
+          state.from = document.getElementById("from").value;
+          state.to = document.getElementById("to").value;
+          state.adults = Number(document.getElementById("adults").value);
+          state.children = Number(document.getElementById("children").value);
+
+          showModalError("");
+          document.getElementById("mFirstName").value = "";
+          document.getElementById("mLastName").value = "";
+          document.getElementById("mPhone").value = "";
+          document.getElementById("mNotes").value = "";
+
+          setModalSummary();
+          openModal("bookModal");
+          document.getElementById("mFirstName").focus();
+        });
+      });
+    }
+
+    async function loadMyReservations(){
+      const title = document.getElementById("myResTitle");
+      const box = document.getElementById("myResList");
+
+      const me = await req("/api/auth/me");
+      if (!me.ok){
+        title.textContent = "";
+        box.textContent = "";
+        return;
+      }
+
+      title.textContent = "Twoje rezerwacje";
+      const r = await req("/api/rooms/my");
+      if (!r.ok){
+        box.textContent = "Nie udało się pobrać rezerwacji.";
+        return;
+      }
+
+      if (!r.body.items.length){
+        box.textContent = "Brak rezerwacji.";
+        return;
+      }
+
+      box.innerHTML = r.body.items.map(x =>
+        `<div style="margin:8px 0">
+          <b>${x.TypPokoju}</b> (${x.NumerPokoju})<br>
+          ${String(x.DataOd).slice(0,10)} → ${String(x.DataDo).slice(0,10)} |
+          dorośli: ${x.Dorosli} | dzieci: ${x.Dzieci} |
+          ${x.CenaCalkowita} € | ${x.Status}
+        </div>`
+      ).join("");
+    }
+
+    // ====== obsługa modali
+    function wireModal(){
+      const bookModal = document.getElementById("bookModal");
+      const phoneInput = document.getElementById("mPhone");
+
+      const closeAll = () => closeModal("bookModal");
+      document.getElementById("modalClose").addEventListener("click", closeAll);
+      document.getElementById("modalCancel").addEventListener("click", closeAll);
+
+      bookModal.addEventListener("click", (e) => {
+        if (e.target === bookModal) closeAll();
+      });
+
+      phoneInput.addEventListener("input", (e) => {
+        const digits = e.target.value.replace(/\D/g, "").slice(0, 9);
+        e.target.value = formatPhonePartial(digits);
+      });
+
+      const okClose = () => closeModal("okModal");
+      document.getElementById("okClose").addEventListener("click", okClose);
+      document.getElementById("okBtn").addEventListener("click", okClose);
+      document.getElementById("okModal").addEventListener("click", (e) => {
+        if (e.target.id === "okModal") okClose();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape"){
+          closeModal("bookModal");
+          closeModal("okModal");
+        }
+      });
+
+      document.getElementById("modalConfirm").addEventListener("click", async () => {
+        showModalError("");
+
+        const firstName = document.getElementById("mFirstName").value.trim();
+        const lastName  = document.getElementById("mLastName").value.trim();
+
+        const phoneRaw = document.getElementById("mPhone").value.trim();
+        const phoneDigits = phoneRaw.replace(/\D/g, "").slice(0, 9);
+
+        if (phoneDigits.length > 0 && phoneDigits.length !== 9) {
+          showModalError("Telefon musi mieć dokładnie 9 cyfr.");
+          return;
+        }
+
+        const phone = phoneDigits;
+        const phonePretty = formatPhone9(phoneDigits);
+
+        const notes = document.getElementById("mNotes").value.trim();
+
+        if (firstName.length < 2 || lastName.length < 2){
+          showModalError("Podaj imię i nazwisko (min. 2 znaki).");
+          return;
+        }
+        if (notes.length > 400){
+          showModalError("Uwagi max 400 znaków.");
+          return;
+        }
+
+        const body = {
+          roomType: state.roomType,
+          from: state.from,
+          to: state.to,
+          guests: state.adults,
+          children: state.children,
+          firstName,
+          lastName,
+          phone,
+          notes
+        };
+
+        const book = await req("/api/rooms/book", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (!book.ok){
+          showModalError(book.body.error || "Nie udało się zarezerwować.");
+          return;
+        }
+
+        closeModal("bookModal");
+
+        document.getElementById("okText").innerHTML = `
+          <div style="font-weight:900;margin-bottom:6px">${state.roomType}</div>
+          <div>Rezerwacja ID: <b>${book.body.reservationId}</b></div>
+          <div>Noce: <b>${book.body.nights}</b></div>
+          <div>Suma: <b>${book.body.total} €</b></div>
+          <div style="margin-top:8px;color:#475569">
+            Dane: ${firstName} ${lastName}${phonePretty ? " • " + phonePretty : ""}
+          </div>
+        `;
+
+        openModal("okModal");
+
+        await loadMyReservations();
+        await search();
+      });
+    }
+
+    // init dat
+    const minDate = todayISO();
+    const fromEl = document.getElementById("from");
+    const toEl   = document.getElementById("to");
+
+    fromEl.min = minDate;
+    toEl.min   = minDate;
+
+    fromEl.value = minDate;
+    {
+      const d = new Date(minDate + "T00:00:00");
+      d.setDate(d.getDate() + 1);
+      toEl.value = toYMDLocal(d);
+      toEl.min = fromEl.value;
+    }
+
+    fromEl.addEventListener("change", () => {
+      const f = fromEl.value || minDate;
+      toEl.min = f;
+
+      if (!toEl.value || toEl.value <= f) {
+        const d = new Date(f + "T00:00:00");
+        d.setDate(d.getDate() + 1);
+        toEl.value = d.toISOString().slice(0, 10);
+      }
+    });
+
+    toEl.addEventListener("change", () => {
+      const f = fromEl.value || minDate;
+      if (toEl.value && toEl.value <= f) {
+        const d = new Date(f + "T00:00:00");
+        d.setDate(d.getDate() + 1);
+        toEl.value = d.toISOString().slice(0, 10);
+      }
+    });
+
+    document.getElementById("searchBtn").addEventListener("click", search);
+
+    // hamburger
+    (function () {
+      const btn = document.getElementById("menu-btn");
+      const links = document.getElementById("nav--links");
+      if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
+    })();
+
+    (async () => {
+      wireModal();
+      await checkLogin();
+      await loadMyReservations();
+      await search();
+    })();
   </script>
 </body>
-
-
-<section class="grid-cards room-categories-grid">
-
-    <article class="card room-card">
-        <h3>Apartamenty</h3>
-        <p>Ekskluzywne, przestronne wnętrza z panoramicznym widokiem. Idealne dla rodzin i osób ceniących luksus.</p>
-        <button class="btn room-btn premium-btn" data-category="apartamenty">Zobacz Galerię</button>
-    </article>
-
-    <article class="card room-card">
-        <h3>Pokoje Premium</h3>
-        <p>Komfortowe pokoje dwuosobowe z dostępem do tarasu i pełnym wyposażeniem hotelowym.</p>
-        <button class="btn room-btn premium-btn" data-category="pokoje">Zobacz Galerię</button>
-    </article>
-
-    <article class="card room-card">
-        <h3>Domki Letniskowe</h3>
-        <p>Całoroczne, niezależne domki z aneksem kuchennym i prywatnym ogrodem. Pełna swoboda i prywatność.</p>
-        <button class="btn room-btn premium-btn" data-category="domki">Zobacz Galerię</button>
-    </article>
-
-</section>
-
-<div id="gallery-modal" class="gallery-overlay">
-    <div class="gallery-content">
-        <button id="close-gallery" class="close-btn">×</button>
-        <h2>Galeria zdjęć <span id="gallery-title"></span></h2>
-        <div id="gallery-images" class="image-grid">
-            </div>
-    </div>
-</div>
-
-<script>
-    // ... (pozostały kod JS, np. do nawigacji, zostaje bez zmian)
-</script>
 </html>
