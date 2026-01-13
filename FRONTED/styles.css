@@ -4,7 +4,7 @@
 *::after { box-sizing: border-box; }
 
 :root{
-  --hero-img: url("../images/beach.jpg");
+  --hero-img: url("./images/beach.jpg");
   --nav-bg: rgba(255,255,255,.88);
   --nav-text: #0b1220;
   --nav-muted: #6b7280;

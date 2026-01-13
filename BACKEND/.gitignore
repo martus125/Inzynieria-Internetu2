@@ -1,5 +1,6 @@
 node_modules# ===== Node dependencies =====
-node_modules/
+node_modules/ 
+
 .pnp/
 .pnp.js
 
@@ -50,4 +51,3 @@ Thumbs.db
 
 # ===== Docker (opcjonalnie) =====
 docker-data/
-

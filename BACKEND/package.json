@@ -1,22 +1,20 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
   "type": "module",
-  "main": "script/index.js",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon script/index.js",
-    "start": "node script/index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
-  "author": "martus",
-  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-session": "^1.17.3",
-    "mysql": "^2.18.1",
+    "mssql": "^11.0.0",
     "nodemon": "^3.1.10"
   }
 }
