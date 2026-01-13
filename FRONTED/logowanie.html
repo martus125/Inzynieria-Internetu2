@@ -3,11 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- zostawiasz swój globalny CSS -->
   <link rel="stylesheet" href="./styles.css" />
+  <!-- nowy CSS tylko dla tej strony -->
+  <link rel="stylesheet" href="./auth-login.css" />
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
   <title>Logowanie | Hotel Olimp</title>
 </head>
-<body>
+
+<body class="auth-page">
+
+  <!-- jeśli chcesz menu na tej stronie, usuń w auth-login.css linię: body.auth-page nav{ display:none; } -->
   <nav>
     <div class="nav__bar">
       <div class="nav__header">
@@ -30,125 +37,128 @@
     </div>
   </nav>
 
-  <section class="hero">
-    <div class="eyebrow">Panel użytkownika</div>
-    <h1>Logowanie i rejestracja</h1>
-    <p>Utwórz konto, a potem zaloguj się, aby zarezerwować pokój.</p>
-  </section>
-
-  <section class="grid-cards" style="max-width:960px">
-    <article class="card">
-      <h3>Rejestracja</h3>
-      <form id="regForm" class="form" style="display:grid; gap:10px; margin-top:10px">
-        <label>Login <input name="login" required></label>
-        <label>Hasło <input name="password" type="password" minlength="6" required></label>
-        <button class="btn" type="submit">Zarejestruj</button>
-        <p id="regMsg"></p>
-      </form>
-    </article>
-
-    <article class="card">
-      <h3>Logowanie</h3>
-      <form id="loginForm" class="form" style="display:grid; gap:10px; margin-top:10px">
-        <label>Login <input name="login" required></label>
-        <label>Hasło <input name="password" type="password" required></label>
-        <button class="btn" type="submit">Zaloguj</button>
-        <p id="loginMsg"></p>
-      </form>
-      <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap">
-        <button class="btn" id="whoamiBtn" type="button">Kim jestem?</button>
-        <button class="btn" id="logoutBtn" type="button">Wyloguj</button>
-        <p id="whoamiMsg"></p>
+  <main class="auth-shell">
+    <section class="auth-card" aria-label="Panel logowania">
+      <div class="auth-top">
+        <div class="auth-icon"><i class="ri-user-3-line"></i></div>
+        <h1 class="auth-title">Member Login</h1>
       </div>
-    </article>
-  </section>
 
-  <script>
-    // ✅ Baza API:
-    // - jeśli jesteś na porcie 3000 (czyli strona jest serwowana przez backend) -> użyj ""
-    // - jeśli jesteś na innym porcie (Live Server itp.) -> użyj "http://localhost:3000"
-    const BASE = (location.protocol.startsWith("http") && location.port === "3000")
-      ? ""
-      : "http://localhost:3000";
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-tab="login">Logowanie</button>
+        <button class="auth-tab" type="button" data-tab="register">Rejestracja</button>
+      </div>
 
-    async function request(path, opts = {}) {
-      const url = path.startsWith("http") ? path : (BASE + path);
+      <!-- LOGOWANIE -->
+      <form id="loginForm" class="auth-form is-active" autocomplete="on">
+        <input class="auth-input" name="login" placeholder="Email ID" required />
+        <input class="auth-input" name="password" type="password" placeholder="Password" required />
+        <button class="auth-btn" type="submit">Login</button>
+        <p id="loginMsg" class="auth-msg"></p>
+      </form>
 
-      try {
-        const r = await fetch(url, {
-          credentials: "include",
-          ...opts,
-        });
+      <!-- REJESTRACJA -->
+      <form id="regForm" class="auth-form" autocomplete="on">
+        <input class="auth-input" name="login" placeholder="Email ID" required />
+        <input class="auth-input" name="password" type="password" minlength="6" placeholder="Password (min. 6)" required />
+        <button class="auth-btn" type="submit">Create account</button>
+        <p id="regMsg" class="auth-msg"></p>
+      </form>
 
-        let body = {};
-        try { body = await r.json(); } catch (e) {}
+      <div class="auth-actions">
+        <button class="auth-ghost" id="whoamiBtn" type="button">Kim jestem?</button>
+        <button class="auth-ghost" id="logoutBtn" type="button">Wyloguj</button>
+      </div>
+      <p id="whoamiMsg" class="auth-msg"></p>
+    </section>
+  </main>
+<script>
+  const API = "http://localhost:3000";
 
-        if (!r.ok) {
-          console.warn("API ERROR:", r.status, url, body);
-        }
+  async function request(url, opts = {}) {
+    try {
+      const r = await fetch(url, {
+        credentials: "include",   // ✅ zawsze wysyłaj ciasteczka sesji
+        ...opts,
+      });
 
-        return { ok: r.ok, status: r.status, body };
-      } catch (err) {
-        console.error("FETCH ERROR:", url, err);
-        return { ok: false, status: 0, body: { error: "Brak połączenia z backendem" } };
-      }
+      let body = {};
+      try { body = await r.json(); } catch (e) {}
+
+      return { ok: r.ok, status: r.status, body };
+    } catch (err) {
+      return { ok: false, status: 0, body: { error: "Brak połączenia z backendem" } };
     }
+  }
 
-    // REJESTRACJA
-    document.getElementById("regForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const body = Object.fromEntries(new FormData(e.currentTarget).entries());
+  // Tabs (logowanie / rejestracja)
+  const tabButtons = document.querySelectorAll(".auth-tab");
+  const loginForm = document.getElementById("loginForm");
+  const regForm = document.getElementById("regForm");
 
-      const res = await request("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+  tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
 
-      document.getElementById("regMsg").textContent =
-        res.ok ? "Konto utworzone!" : (res.body.error || "Błąd rejestracji");
+      const tab = btn.dataset.tab;
+      loginForm.classList.toggle("is-active", tab === "login");
+      regForm.classList.toggle("is-active", tab === "register");
+    });
+  });
+
+  // Rejestracja
+  regForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(e.currentTarget).entries());
+
+    const res = await request(API + "/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
-    // LOGOWANIE
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const body = Object.fromEntries(new FormData(e.currentTarget).entries());
+    document.getElementById("regMsg").textContent =
+      res.ok ? "Konto utworzone!" : (res.body.error || "Błąd rejestracji");
+  });
 
-      const res = await request("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+  // Logowanie
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(e.currentTarget).entries());
 
-      document.getElementById("loginMsg").textContent =
-        res.ok ? "Zalogowano!" : (res.body.error || "Błąd logowania");
+    const res = await request(API + "/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
-    // WYLOGUJ
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await request("/api/auth/logout", { method: "POST" });
-      document.getElementById("whoamiMsg").textContent = "Wylogowano";
-    });
+    document.getElementById("loginMsg").textContent =
+      res.ok ? "Zalogowano!" : (res.body.error || "Błąd logowania");
+  });
 
-    // KIM JESTEM
-    document.getElementById("whoamiBtn").addEventListener("click", async () => {
-      const res = await request("/api/auth/me");
-      const el = document.getElementById("whoamiMsg");
+  // Wyloguj
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await request(API + "/api/auth/logout", { method: "POST" });
+    document.getElementById("whoamiMsg").textContent = "Wylogowano";
+  });
 
-      const u = res.body?.user;
-      const label = u?.login ?? u?.email ?? "(brak)";
-
-      el.textContent = (res.ok && u)
-        ? ("Zalogowany jako: " + label)
+  // Kim jestem?
+  document.getElementById("whoamiBtn").addEventListener("click", async () => {
+    const res = await request(API + "/api/auth/me"); // ✅ cookies pójdą automatycznie
+    document.getElementById("whoamiMsg").textContent =
+      res.ok && res.body?.user
+        ? ("Zalogowany jako: " + res.body.user.login)
         : (res.body.error || "Nie zalogowano");
-    });
+  });
 
-    // hamburger
-    (function () {
-      const btn = document.getElementById("menu-btn");
-      const links = document.getElementById("nav--links");
-      if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
-    })();
-  </script>
+  // hamburger (jeśli nav masz widoczny)
+  (function(){
+    const btn = document.getElementById("menu-btn");
+    const links = document.getElementById("nav--links");
+    if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
+  })();
+</script>
+
 </body>
 </html>
