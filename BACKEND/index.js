@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -16,31 +17,26 @@ const __dirname = path.dirname(__filename);
 
 // statyczny frontend
 app.use(express.static(path.join(__dirname, "..", "FRONTED")));
-
-// statyczne obrazki (pewny adres /images/...)
 app.use("/images", express.static(path.join(__dirname, "..", "FRONTED", "images")));
-
-
 
 // JSON + cookies
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS (bez app.options("*") bo w Express 5 potrafi wywalać błąd)
+// CORS (raz)
 app.use(
   cors({
     origin: true,
     credentials: true,
   })
 );
-// preflight na każdą ścieżkę (bez gwiazdki)
 app.options(/.*/, cors({ origin: true, credentials: true }));
 
-// SESJA (TYLKO RAZ)
+// SESJA (raz)
 app.use(
   session({
     name: "olimp.sid",
-    secret: process.env.SESSION_SECRET || "dev-secret",
+    secret: process.env.SESSION_SECRET || "dev-secret-olimp",
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -56,7 +52,7 @@ app.use(
    HELPERS
 ========================= */
 function requireAuth(req, res, next) {
-  if (!req.session?.user) return res.status(401).json({ error: "Zaloguj się, aby rezerwować." });
+  if (!req.session?.user) return res.status(401).json({ error: "Brak sesji - zaloguj się." });
   next();
 }
 
@@ -65,7 +61,7 @@ function isISODate(s) {
 }
 function startOfTodayLocal() {
   const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 00:00 lokalnie
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 /* =========================
@@ -151,7 +147,6 @@ app.post("/api/auth/login", async (req, res) => {
     const ok = bcrypt.compareSync(password, user.PasswordHash);
     if (!ok) return res.status(401).json({ error: "Zły login lub hasło" });
 
-    // ✅ poprawnie zapisujemy sesję
     req.session.user = { id: user.UserID, login: user.Email };
 
     req.session.save((err) => {
@@ -165,7 +160,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // kim jestem
 app.get("/api/auth/me", (req, res) => {
-  if (!req.session.user) return res.status(401).json({ error: "Brak sesji" });
+  if (!req.session?.user) return res.status(401).json({ error: "Brak sesji" });
   res.json({ ok: true, user: req.session.user });
 });
 
@@ -178,7 +173,6 @@ app.post("/api/auth/logout", (req, res) => {
    ROOMS: SEARCH + BOOK + MY
 ========================= */
 
-// Szukanie dostępności po typie (from/to/guests)
 app.get("/api/rooms/search", async (req, res) => {
   const { from, to, guests } = req.query;
 
@@ -192,10 +186,10 @@ app.get("/api/rooms/search", async (req, res) => {
   const dateFrom = new Date(from + "T00:00:00");
   const dateTo = new Date(to + "T00:00:00");
   const today = startOfTodayLocal();
-if (dateFrom < today) {
-  return res.status(400).json({ error: "Nie można wyszukiwać pokoi w przeszłości. Wybierz dzisiejszą lub przyszłą datę." });
-}
 
+  if (dateFrom < today) {
+    return res.status(400).json({ error: "Nie można wyszukiwać pokoi w przeszłości. Wybierz dzisiejszą lub przyszłą datę." });
+  }
   if (!(dateTo > dateFrom)) return res.status(400).json({ error: "Data 'to' musi być po 'from'." });
 
   try {
@@ -235,7 +229,6 @@ if (dateFrom < today) {
   }
 });
 
-// Rezerwacja 1 wolnego pokoju danego typu (blokada terminów)
 app.post("/api/rooms/book", requireAuth, async (req, res) => {
   const { roomType, from, to, guests, children, firstName, lastName, phone, notes } = req.body || {};
 
@@ -261,10 +254,10 @@ app.post("/api/rooms/book", requireAuth, async (req, res) => {
   const dateFrom = new Date(from + "T00:00:00");
   const dateTo = new Date(to + "T00:00:00");
   const today = startOfTodayLocal();
-if (dateFrom < today) {
-  return res.status(400).json({ error: "Nie można rezerwować pokoju w przeszłości." });
-}
 
+  if (dateFrom < today) {
+    return res.status(400).json({ error: "Nie można rezerwować pokoju w przeszłości." });
+  }
   if (!(dateTo > dateFrom)) return res.status(400).json({ error: "Data 'to' musi być po 'from'." });
 
   const nights = Math.round((dateTo - dateFrom) / (1000 * 60 * 60 * 24));
@@ -284,7 +277,6 @@ if (dateFrom < today) {
     rq.input("DataDo", sql.Date, dateTo);
     rq.input("Guests", sql.Int, totalGuests);
 
-    // 1) wybierz 1 wolny pokój i zablokuj transakcyjnie
     const pick = await rq.query(`
       SELECT TOP 1 p.PokojID, p.CenaZaNoc, p.MaxOsob
       FROM dbo.Pokoje p WITH (UPDLOCK, HOLDLOCK)
@@ -321,14 +313,12 @@ if (dateFrom < today) {
     rq.input("Telefon", sql.NVarChar(30), ph);
     rq.input("Uwagi", sql.NVarChar(400), nt);
 
-    // 2) zaktualizuj dane klienta (żeby nie było "User User")
     await rq.query(`
       UPDATE dbo.Klienci
       SET FirstName = @Imie, LastName = @Nazwisko
       WHERE UserID = @UserID;
     `);
 
-    // 3) insert rezerwacji do TWOJEJ tabeli + nowe pola
     const ins = await rq.query(`
       INSERT INTO dbo.RezerwacjeNoclegow
         (UserID, PokojID, DataZameldowania, DataWymeldowania,
@@ -358,8 +348,6 @@ if (dateFrom < today) {
   }
 });
 
-
-// Moje rezerwacje
 app.get("/api/rooms/my", requireAuth, async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -390,7 +378,128 @@ app.get("/api/rooms/my", requireAuth, async (req, res) => {
 });
 
 /* =========================
-   START
+   EVENTY (SQL SERVER + PL)
 ========================= */
+
+// lista eventów + sloty (POLSKIE TABELE)
+app.get("/api/events", async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const r = await pool.request().query(`
+      SELECT
+        w.WydarzenieID,
+        w.Tytul,
+        w.Opis,
+        s.SlotID,
+        s.Godzina,
+        s.LimitMiejsc,
+        s.PozostaleMiejsca
+      FROM dbo.Wydarzenia w
+      JOIN dbo.SlotyWydarzen s ON s.WydarzenieID = w.WydarzenieID
+      WHERE w.CzyAktywne = 1 AND s.CzyAktywne = 1
+      ORDER BY w.WydarzenieID, s.SlotID;
+    `);
+
+    const map = new Map();
+    for (const row of r.recordset) {
+      if (!map.has(row.WydarzenieID)) {
+        map.set(row.WydarzenieID, {
+          id: row.WydarzenieID,
+          title: row.Tytul,
+          description: row.Opis,
+          slots: [],
+        });
+      }
+
+      map.get(row.WydarzenieID).slots.push({
+        id: row.SlotID,
+        slot_time: row.Godzina,
+        capacity: row.LimitMiejsc,
+        remaining: row.PozostaleMiejsca,
+      });
+    }
+
+    res.json({ ok: true, events: Array.from(map.values()) });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "DB error (events/list)", details: e.message });
+  }
+});
+
+// zapis na event + odejmowanie miejsc (transakcja)
+app.post("/api/events/:id/signup", requireAuth, async (req, res) => {
+  const eventId = Number(req.params.id);
+  const userId = req.session.user.id;
+
+  const { firstName, lastName, peopleCount, slotId } = req.body || {};
+  const pc = Number(peopleCount);
+  const sId = Number(slotId);
+
+  if (!eventId || !sId || !firstName || !lastName || !pc || pc < 1) {
+    return res.status(400).json({ error: "Niepoprawne dane formularza." });
+  }
+
+  let tx;
+
+  try {
+    const pool = await poolPromise;
+    tx = new sql.Transaction(pool);
+
+    await tx.begin(sql.ISOLATION_LEVEL.SERIALIZABLE);
+    const rq = new sql.Request(tx);
+
+    rq.input("WydarzenieID", sql.Int, eventId);
+    rq.input("SlotID", sql.Int, sId);
+
+    // blokujemy slot (żeby nie było overbookingu)
+    const slot = await rq.query(`
+      SELECT PozostaleMiejsca
+      FROM dbo.SlotyWydarzen WITH (UPDLOCK, HOLDLOCK)
+      WHERE SlotID = @SlotID AND WydarzenieID = @WydarzenieID AND CzyAktywne = 1;
+    `);
+
+    if (!slot.recordset.length) {
+      await tx.rollback();
+      return res.status(404).json({ error: "Nie znaleziono slotu." });
+    }
+
+    const remaining = Number(slot.recordset[0].PozostaleMiejsca);
+    if (remaining < pc) {
+      await tx.rollback();
+      return res.status(409).json({ error: `Brak miejsc. Dostępne: ${remaining}.` });
+    }
+
+    rq.input("LiczbaOsob", sql.Int, pc);
+
+    // odejmij miejsca
+    await rq.query(`
+      UPDATE dbo.SlotyWydarzen
+      SET PozostaleMiejsca = PozostaleMiejsca - @LiczbaOsob
+      WHERE SlotID = @SlotID;
+    `);
+
+    // dodaj zapis
+    rq.input("UserID", sql.Int, userId);
+    rq.input("Imie", sql.NVarChar(60), String(firstName).trim());
+    rq.input("Nazwisko", sql.NVarChar(80), String(lastName).trim());
+
+    await rq.query(`
+      INSERT INTO dbo.ZapisyWydarzen
+        (UserID, WydarzenieID, SlotID, Imie, Nazwisko, LiczbaOsob)
+      VALUES
+        (@UserID, @WydarzenieID, @SlotID, @Imie, @Nazwisko, @LiczbaOsob);
+    `);
+
+    await tx.commit();
+    res.json({ ok: true, message: "Zapisano na event!" });
+  } catch (e) {
+    try { if (tx) await tx.rollback(); } catch {}
+    console.error(e);
+    res.status(500).json({ error: "DB error (events/signup)", details: e.message });
+  }
+});
+
+
 const port = Number(process.env.PORT || 3000);
 app.listen(port, () => console.log(`Backend działa na http://localhost:${port}`));

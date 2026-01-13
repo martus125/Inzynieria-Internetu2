@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./eventy-page.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
   <title>Eventy | Hotel Olimp</title>
 </head>
-<body>
+
+<body class="events-page">
   <nav>
     <div class="nav__bar">
       <div class="nav__header">
@@ -30,83 +32,255 @@
       </ul>
     </div>
   </nav>
-<section class="hero hero--center">
-        <div class="eyebrow">Biznes i Wypoczynek</div>
-        <h1 class="header-title">Sale Konferencyjne i Wydarzenia</h1>
-        <p class="header-subtitle">Oferujemy profesjonalne zaplecze do organizacji eventów, spotkań biznesowych i przyjęć okolicznościowych.</p>
-        <button class="btn premium-btn">Zapytaj o dostępność Sali</button>
-    </section>
 
-   <section class="grid-cards event-grid">
+  <header class="events-hero">
+    <div class="events-hero__inner">
+      <div class="eyebrow">Wypoczynek i atrakcje</div>
+      <h1>EVENTY</h1>
+      <p>Wybierz wydarzenie i zarezerwuj miejsca. Dostępność aktualizuje się po każdym zapisie.</p>
+    </div>
+  </header>
 
-        <div class="events-main-column">
-            
-            <article class="card event-card event-card--wide">
-                <h3 class="card-title-alt"><i class="ri-building-line"></i> Sala Kryształowa</h3>
-                <p>Największa i najbardziej elegancka sala bankietowa. Idealna na duże konferencje, gale i wesela (do 200 osób). Wyposażona w rzutnik 4K, profesjonalne nagłośnienie i indywidualną klimatyzację. </p>
-                <ul class="facility-list">
-                    <li><i class="ri-check-line"></i> Pojemność: 200 osób</li>
-                    <li><i class="ri-check-line"></i> Sprzęt Audiowizualny Premium</li>
-                    <li><i class="ri-check-line"></i> Możliwość podziału na dwie mniejsze sekcje</li>
-                </ul>
-                <button class="btn light-btn">Zobacz Układy Sali</button>
-            </article>
+  <main class="events-wrap">
+    <section class="events-grid" id="eventsGrid"></section>
+  </main>
 
-            <div class="events-small-cards-row">
-                <article class="card event-card">
-                    <h3 class="card-title-alt"><i class="ri-group-line"></i> Sala Kameralna</h3>
-                    <p>Idealne miejsce na spotkania zarządu, małe szkolenia i kolacje biznesowe (do 30 osób). Zapewnia intymność i wysoki komfort pracy.</p>
-                    <ul class="facility-list">
-                        <li><i class="ri-check-line"></i> Pojemność: 30 osób</li>
-                        <li><i class="ri-check-line"></i> Prywatny aneks kawowy</li>
-                    </ul>
-                </article>
+  <!-- MODAL -->
+  <div class="modal" id="signupModal" aria-hidden="true">
+    <div class="modal__overlay" data-close="1"></div>
 
-                <article class="card event-card">
-                    <h3 class="card-title-alt"><i class="ri-plant-line"></i> Ogród Zimowy</h3>
-                    <p>Przestrzeń eventowa z przeszklonym dachem i bogatą roślinnością. Idealna na przyjęcia weselne w stylu rustykalnym i bankiety (do 80 osób).</p>
-                    <ul class="facility-list">
-                        <li><i class="ri-check-line"></i> Pojemność: 80 osób</li>
-                        <li><i class="ri-check-line"></i> Naturalne światło i widok</li>
-                    </ul>
-                </article>
-            </div>
-            
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__close" type="button" id="modalClose" aria-label="Zamknij">
+        <i class="ri-close-line"></i>
+      </button>
+
+      <h2 class="modal__title" id="modalTitle">Zapis na event</h2>
+      <p class="modal__subtitle" id="modalSubtitle"></p>
+
+      <form id="signupForm" class="modal__form">
+        <div class="form__row">
+          <label>Imię</label>
+          <input type="text" id="firstName" required maxlength="60" />
         </div>
-        
-        <article class="card event-card event-card--sidebar">
-            <h3 class="card-title-alt"><i class="ri-calendar-event-line"></i> Nadchodzące Wydarzenia</h3>
-            <ul class="event-list">
-                <li>
-                    <strong>05.12</strong> | Wieczór z fortepianem i Jazzem
-                    <span class="event-type">Rozrywka</span>
-                </li>
-                <li>
-                    <strong>12.12</strong> | Degustacja Win Regionalnych
-                    <span class="event-type">Gastronomia</span>
-                </li>
-                <li>
-                    <strong>18.12</strong> | Otwarte warsztaty kulinarne
-                    <span class="event-type">Warsztaty</span>
-                </li>
-                <li>
-                    <strong>24.12</strong> | Uroczysta Kolacja Wigilijna
-                    <span class="event-type">Specjalne</span>
-                </li>
-            </ul>
-            <button class="btn premium-btn" style="margin-top: 20px;">Pełny Kalendarz</button>
-        </article>
-    </section>
 
-       
-    <section style="height: 100px;"></section>
+        <div class="form__row">
+          <label>Nazwisko</label>
+          <input type="text" id="lastName" required maxlength="80" />
+        </div>
 
-    <script>
-        (function(){
-            const btn = document.getElementById('menu-btn');
-            const links = document.getElementById('nav--links');
-            if (btn && links) btn.addEventListener('click', ()=> links.classList.toggle('open'));
-        })();
-    </script>
+        <div class="form__row">
+          <label>Liczba osób</label>
+          <input type="number" id="peopleCount" min="1" max="20" value="1" required />
+          <small class="hint" id="seatsHint"></small>
+        </div>
+
+        <div class="form__row">
+          <label>Godzina</label>
+          <select id="slotSelect" required></select>
+        </div>
+
+        <button class="btn-primary" type="submit" id="submitBtn">Zapisz się</button>
+        <div class="form__msg" id="formMsg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = ""; // ten sam host
+
+    const grid = document.getElementById("eventsGrid");
+    const modal = document.getElementById("signupModal");
+    const modalClose = document.getElementById("modalClose");
+    const modalSubtitle = document.getElementById("modalSubtitle");
+    const slotSelect = document.getElementById("slotSelect");
+    const peopleCountEl = document.getElementById("peopleCount");
+    const seatsHint = document.getElementById("seatsHint");
+    const formMsg = document.getElementById("formMsg");
+    const submitBtn = document.getElementById("submitBtn");
+
+    let EVENTS = [];
+    let currentEvent = null;
+
+    // hamburger
+    (function(){
+      const btn = document.getElementById("menu-btn");
+      const links = document.getElementById("nav--links");
+      if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
+    })();
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+    }
+
+    async function api(path, opts = {}) {
+      const r = await fetch(API + path, {
+        method: opts.method || "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+      });
+
+      let data = {};
+      try { data = await r.json(); } catch(e) {}
+      if (!r.ok) throw { status: r.status, data };
+      return data;
+    }
+
+  
+    const IMAGE_BY_TITLE = {
+      "PRZEJAŻDŻKA ROWEROWA Z PRZEWODNIKIEM": "/images/rower.jpg",     
+      "IMPREZA PRZY OGNISKU NA PLAŻY": "/images/ognisko.jpg",          
+      "JOGA NA PLAŻY": "/images/joga.jpg",                            
+      "POKAZ TAŃCA Z OGNIEM": "/images/pokaz.jpg",                 
+      "KONCERT MUZYKI NA ŻYWO": "/images/muzyka.jpg",                
+      "AQUA AEROBIK": "/images/aqua.jpg",                              
+      "ZAWODY Z SIATKÓWKI PLAŻOWEJ": "/images/siatka.jpg",          
+      "DEGUSTACJA WIN W POBLISKIEJ WINNICY": "/images/wino.jpg"        
+    };
+    const DEFAULT_EVENT_IMG = "/images/eventy/default.jpg"; 
+  
+
+    function getEventImg(ev){
+      const key = String(ev.title || "").toUpperCase().trim();
+      return IMAGE_BY_TITLE[key] || DEFAULT_EVENT_IMG;
+    }
+
+    function slotsInline(slots) {
+      return slots.map(s => {
+        const full = Number(s.remaining) <= 0;
+        return `
+          <span class="slot-badge ${full ? "slot-badge--full" : ""}">
+            ${esc(s.slot_time)} • <b>${Number(s.remaining)}</b>/<span>${Number(s.capacity)}</span>
+          </span>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      grid.innerHTML = EVENTS.map(ev => {
+        const img = getEventImg(ev);
+
+        return `
+          <article class="event-card">
+            <div class="event-card__body">
+
+              <!-- zdjęcie eventu -->
+              <div class="event-media">
+                <img
+                  src="${esc(img)}"
+                  alt="${esc(ev.title)}"
+                  loading="lazy"
+                  onerror="this.src='${esc(DEFAULT_EVENT_IMG)}'"
+                />
+              </div>
+
+              <h3 class="event-title">${esc(ev.title)}</h3>
+              <p class="event-desc">${esc(ev.description)}</p>
+
+              <div class="event-slots">
+                ${slotsInline(ev.slots)}
+              </div>
+
+              <button class="btn-primary event-btn" data-id="${ev.id}">
+                Zapisz się
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      grid.querySelectorAll(".event-btn").forEach(btn => {
+        btn.addEventListener("click", () => openModal(Number(btn.dataset.id)));
+      });
+    }
+
+    function openModal(eventId) {
+      currentEvent = EVENTS.find(e => e.id === eventId);
+      if (!currentEvent) return;
+
+      formMsg.textContent = "";
+      peopleCountEl.value = 1;
+      modalSubtitle.textContent = currentEvent.title;
+
+      slotSelect.innerHTML = currentEvent.slots.map(s =>
+        `<option value="${s.id}" data-remaining="${Number(s.remaining)}">
+          ${s.slot_time} (pozostało: ${Number(s.remaining)})
+        </option>`
+      ).join("");
+
+      updateHint();
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function selectedRemaining() {
+      const opt = slotSelect.selectedOptions[0];
+      return opt ? Number(opt.dataset.remaining) : 0;
+    }
+
+    function updateHint() {
+      const rem = selectedRemaining();
+      const pc = Number(peopleCountEl.value || 1);
+
+      seatsHint.textContent = rem > 0
+        ? `Dostępne miejsca w tym slocie: ${rem}`
+        : `Brak miejsc w tym slocie. Wybierz inną godzinę.`;
+
+      const ok = rem >= pc && pc >= 1;
+      submitBtn.disabled = !ok;
+
+      if (!ok && rem > 0) formMsg.textContent = `Za dużo osób jak na ten slot (max ${rem}).`;
+      else formMsg.textContent = "";
+    }
+
+    modal.addEventListener("click", (e) => {
+      if (e.target?.dataset?.close) closeModal();
+    });
+    modalClose.addEventListener("click", closeModal);
+    slotSelect.addEventListener("change", updateHint);
+    peopleCountEl.addEventListener("input", updateHint);
+
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentEvent) return;
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const peopleCount = Number(peopleCountEl.value);
+      const slotId = Number(slotSelect.value);
+
+      formMsg.textContent = "";
+
+      try {
+        await api(`/api/events/${currentEvent.id}/signup`, {
+          method: "POST",
+          body: { firstName, lastName, peopleCount, slotId }
+        });
+
+        closeModal();
+        await loadEvents();
+        alert("Zapisano! ✅");
+      } catch (err) {
+        if (err.status === 401) {
+          window.location.href = "./logowanie.html";
+          return;
+        }
+        formMsg.textContent = err.data?.error || "Błąd zapisu.";
+      }
+    });
+
+    async function loadEvents() {
+      const data = await api("/api/events");
+      EVENTS = data.events || [];
+      render();
+    }
+
+    loadEvents();
+  </script>
 </body>
 </html>
