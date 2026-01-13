@@ -51,3 +51,5 @@ Thumbs.db
 
 # ===== Docker (opcjonalnie) =====
 docker-data/
+
+images/
