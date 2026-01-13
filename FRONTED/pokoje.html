@@ -22,14 +22,22 @@
         </button>
       </div>
 
-      <ul class="nav__links" id="nav--links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="onas.html">O nas</a></li>
-        <li><a href="pokoje.html" class="active">Pokoje</a></li>
-        <li><a href="menu.html">Menu</a></li>
-        <li><a href="eventy.html">Eventy</a></li>
-        <li><a href="logowanie.html">Logowanie</a></li>
-      </ul>
+      <!-- ✅ NAV + PANEL BTN -->
+      <div class="nav__right">
+        <ul class="nav__links" id="nav--links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="onas.html">O nas</a></li>
+          <li><a href="pokoje.html" class="active">Pokoje</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="eventy.html">Eventy</a></li>
+          <li><a href="logowanie.html">Logowanie</a></li>
+        </ul>
+
+        <button class="nav__userbtn" id="userpanel-btn" type="button" aria-label="Otwórz panel użytkownika">
+          <i class="ri-user-3-line"></i>
+          <span>Panel</span>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -81,6 +89,41 @@
 
     <!-- lista -->
     <main class="rooms-list" id="roomsList"></main>
+  </div>
+
+  <!-- ✅ USER PANEL MODAL -->
+  <div class="upanel-overlay" id="upanel-overlay" hidden>
+    <div class="upanel" role="dialog" aria-modal="true" aria-labelledby="upanel-title">
+      <button class="upanel__close" id="upanel-close" aria-label="Zamknij">
+        <i class="ri-close-line"></i>
+      </button>
+
+      <div class="upanel__header">
+        <div>
+          <div class="upanel__eyebrow">Panel użytkownika</div>
+          <h2 id="upanel-title">Witaj, <span id="upanel-login">…</span></h2>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;">
+          <a class="btn-secondary" id="upanel-loginlink" href="logowanie.html" style="display:none">Zaloguj</a>
+          <button class="btn-secondary" id="upanel-logout" type="button" style="display:none">Wyloguj</button>
+        </div>
+      </div>
+
+      <div class="upanel__grid">
+        <section class="upanel__section">
+          <h3>Najbliższe rezerwacje</h3>
+          <div id="upanel-reservations"></div>
+        </section>
+
+        <section class="upanel__section">
+          <h3>Najbliższe eventy</h3>
+          <div id="upanel-events"></div>
+        </section>
+      </div>
+
+      <p class="upanel__hint" id="upanel-hint"></p>
+    </div>
   </div>
 
   <!-- MODAL: formularz rezerwacji -->
@@ -168,13 +211,6 @@
       return toYMDLocal(new Date());
     }
 
-    function plusDaysISO(days){
-      const d = new Date();
-      d.setHours(12, 0, 0, 0);
-      d.setDate(d.getDate() + days);
-      return toYMDLocal(d);
-    }
-
     // normalizacja nazw (usuwa polskie znaki) – żeby mapowanie zawsze działało
     function normType(s){
       return String(s || "")
@@ -223,7 +259,7 @@
     const IMG = {
       "Apartamenty Comfort": "/images/comfort1.jpg",
       "Apartament typu Royal": "/images/royal1.jpg",
-      "Apartament z 1 sypialnia": "/images/jedsypialnia1.jpg",
+      "Apartament z 1 sypialnia": "/images/jednasypialnia1.jpg",
       "Apartament z 2 sypialniami": "/images/dwasypialnia1.jpg",
       "Pokoj jednoosobowy": "/images/jedosobowy1.jpg",
       "Pokoj dwuosobowy": "/images/dwuosobowy1.jpg",
@@ -268,66 +304,63 @@
       document.getElementById("modalError").textContent = msg || "";
     }
 
-   function cardHTML(item){
-  const available = Number(item.Dostepne || 0);
-  const priceFrom = Number(item.CenaOd || 0);
+    function cardHTML(item){
+      const available = Number(item.Dostepne || 0);
+      const priceFrom = Number(item.CenaOd || 0);
 
-  const typeRaw = String(item.TypPokoju || "").trim();
-  const key = normType(typeRaw);
+      const typeRaw = String(item.TypPokoju || "").trim();
+      const key = normType(typeRaw);
 
-  const photos = ROOM_PHOTOS[key] || ROOM_PHOTOS[typeRaw] || null;
+      const photos = ROOM_PHOTOS[key] || ROOM_PHOTOS[typeRaw] || null;
 
-  // bierzemy max 3 fotki
-  const imgs = (photos && photos.length ? photos : [IMG[key] || IMG[typeRaw] || "/images/beach.jpg"])
-    .filter(Boolean)
-    .slice(0, 3);
+      // bierzemy max 3 fotki
+      const imgs = (photos && photos.length ? photos : [IMG[key] || IMG[typeRaw] || "/images/beach.jpg"])
+        .filter(Boolean)
+        .slice(0, 3);
 
-  const p1 = imgs[0] || "/images/beach.jpg";
-  const dataImgs = imgs.join("|"); // zapisujemy jako "img1|img2|img3"
+      const p1 = imgs[0] || "/images/beach.jpg";
+      const dataImgs = imgs.join("|"); // zapisujemy jako "img1|img2|img3"
 
-  return `
-    <article class="room-card">
-      <div class="room-media">
-        <img class="room-img"
-             src="${p1}"
-             data-imgs="${dataImgs}"
-             alt="${typeRaw}"
-             onerror="this.src='/images/beach.jpg'">
-
-        <div class="gallery">ZOBACZ GALERIĘ <span style="opacity:.7; font-weight:600">2 FOTKI</span></div>
-      </div>
-
-      <div class="room-body">
-        <div>
-          <h3 class="room-title">${typeRaw}</h3>
-          <div class="room-meta">
-            <span>Dostępne pokoje: ${available}</span>
-            <span>Możliwość wpłaty zaliczki od 50% ceny całkowitej!</span>
+      return `
+        <article class="room-card">
+          <div class="room-media">
+            <img class="room-img"
+                 src="${p1}"
+                 data-imgs="${dataImgs}"
+                 alt="${typeRaw}"
+                 onerror="this.src='/images/beach.jpg'">
           </div>
-          <p class="room-desc">
-            ${item.Opis || "Wybierz termin, aby sprawdzić dostępność i zarezerwować."}
-          </p>
-        </div>
 
-        <div>
-          <div class="room-price">
-            <div class="from">od <span class="val">${priceFrom} €</span> <small>/ 1 noc</small></div>
-          </div>
-          <div class="room-cta">
-            <button class="offer-btn"
-              data-type="${typeRaw}"
-              data-price="${priceFrom}"
-              ${available>0 ? "" : "disabled"}
-              style="${available>0 ? "" : "opacity:.55;cursor:not-allowed"}">
-              <i class="ri-calendar-check-line"></i> Zarezerwuj pokój
-            </button>
-          </div>
-        </div>
-      </div>
-    </article>
-  `;
-}
+          <div class="room-body">
+            <div>
+              <h3 class="room-title">${typeRaw}</h3>
+              <div class="room-meta">
+                <span>Dostępne pokoje: ${available}</span>
+                <span>Możliwość wpłaty zaliczki od 50% ceny całkowitej!</span>
+              </div>
+              <p class="room-desc">
+                ${item.Opis || "Wybierz termin, aby sprawdzić dostępność i zarezerwować."}
+              </p>
+            </div>
 
+            <div>
+              <div class="room-price">
+                <div class="from">od <span class="val">${priceFrom} €</span> <small>/ 1 noc</small></div>
+              </div>
+              <div class="room-cta">
+                <button class="offer-btn"
+                  data-type="${typeRaw}"
+                  data-price="${priceFrom}"
+                  ${available>0 ? "" : "disabled"}
+                  style="${available>0 ? "" : "opacity:.55;cursor:not-allowed"}">
+                  <i class="ri-calendar-check-line"></i> Zarezerwuj pokój
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
 
     async function search(){
       const from = document.getElementById("from").value;
@@ -347,48 +380,46 @@
 
       listEl.innerHTML = res.body.items.map(cardHTML).join("");
 
-     // HOVER: 1→2→3 co 1s, po zjechaniu wraca na 1
-listEl.querySelectorAll(".room-media").forEach(media => {
-  const img = media.querySelector(".room-img");
-  if (!img) return;
+      // HOVER: 1→2→3 co 1s, po zjechaniu wraca na 1
+      listEl.querySelectorAll(".room-media").forEach(media => {
+        const img = media.querySelector(".room-img");
+        if (!img) return;
 
-  const imgs = (img.dataset.imgs || "")
-    .split("|")
-    .map(s => s.trim())
-    .filter(Boolean);
+        const imgs = (img.dataset.imgs || "")
+          .split("|")
+          .map(s => s.trim())
+          .filter(Boolean);
 
-  if (imgs.length <= 1) return;
+        if (imgs.length <= 1) return;
 
-  let idx = 0;
-  let timer = null;
+        let idx = 0;
+        let timer = null;
 
-  const start = () => {
-    if (timer) return;          // nie odpalaj drugi raz
-    idx = 0;
+        const start = () => {
+          if (timer) return;
+          idx = 0;
 
-    // od razu pokaż 2 zdjęcie (żeby efekt był natychmiast)
-    idx = (idx + 1) % imgs.length;
-    img.src = imgs[idx];
+          idx = (idx + 1) % imgs.length;
+          img.src = imgs[idx];
 
-    timer = setInterval(() => {
-      idx = (idx + 1) % imgs.length;
-      img.src = imgs[idx];
-    }, 1000);
-  };
+          timer = setInterval(() => {
+            idx = (idx + 1) % imgs.length;
+            img.src = imgs[idx];
+          }, 1000);
+        };
 
-  const stop = () => {
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-    idx = 0;
-    img.src = imgs[0];          // wracamy do 1 zdjęcia
-  };
+        const stop = () => {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+          idx = 0;
+          img.src = imgs[0];
+        };
 
-  media.addEventListener("mouseenter", start);
-  media.addEventListener("mouseleave", stop);
-});
-
+        media.addEventListener("mouseenter", start);
+        media.addEventListener("mouseleave", stop);
+      });
 
       // klik w rezerwuj -> modal
       listEl.querySelectorAll(".offer-btn").forEach(btn => {
@@ -452,7 +483,7 @@ listEl.querySelectorAll(".room-media").forEach(media => {
       ).join("");
     }
 
-    // ====== obsługa modali
+    // ====== obsługa modali rezerwacji
     function wireModal(){
       const bookModal = document.getElementById("bookModal");
       const phoneInput = document.getElementById("mPhone");
@@ -481,6 +512,7 @@ listEl.querySelectorAll(".room-media").forEach(media => {
         if (e.key === "Escape"){
           closeModal("bookModal");
           closeModal("okModal");
+          closeUserPanel(); // ✅ domykamy też panel usera
         }
       });
 
@@ -553,6 +585,177 @@ listEl.querySelectorAll(".room-media").forEach(media => {
         await search();
       });
     }
+
+    // =========================
+    // ✅ PANEL UŻYTKOWNIKA (modal)
+    // =========================
+    const upOverlay = document.getElementById("upanel-overlay");
+    const upOpenBtn = document.getElementById("userpanel-btn");
+    const upCloseBtn = document.getElementById("upanel-close");
+
+    const upLoginEl = document.getElementById("upanel-login");
+    const upHintEl = document.getElementById("upanel-hint");
+    const upResEl = document.getElementById("upanel-reservations");
+    const upEventsEl = document.getElementById("upanel-events");
+
+    const upLoginLink = document.getElementById("upanel-loginlink");
+    const upLogoutBtn = document.getElementById("upanel-logout");
+
+    function userItemHTML(icon, title, sub){
+      return `
+        <div class="upanel__item">
+          <div class="upanel__icon"><i class="${icon}"></i></div>
+          <div class="upanel__meta">
+            <div class="upanel__title">${title}</div>
+            <div class="upanel__sub">${sub}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEmpty(where, text){
+      where.innerHTML = userItemHTML("ri-information-line", text, "Brak danych do wyświetlenia");
+    }
+
+    function setLoggedOut(msg){
+      upLoginEl.textContent = "gościu";
+      upLoginLink.style.display = "inline-block";
+      upLogoutBtn.style.display = "none";
+      upHintEl.textContent = msg || "Zaloguj się, żeby zobaczyć swoje rezerwacje i zapisy.";
+      renderEmpty(upResEl, "Rezerwacje");
+      renderEmpty(upEventsEl, "Eventy");
+    }
+
+    function setLoggedIn(login){
+      upLoginEl.textContent = login || "użytkowniku";
+      upLoginLink.style.display = "none";
+      upLogoutBtn.style.display = "inline-block";
+    }
+
+    function fmtDate(d){
+      try{
+        const dt = new Date(d);
+        if (Number.isNaN(dt.getTime())) return String(d);
+        return dt.toLocaleDateString("pl-PL");
+      }catch(e){ return String(d); }
+    }
+
+  async function loadUserPanel(){
+  upHintEl.textContent = "Ładowanie...";
+  upResEl.innerHTML = "";
+  upEventsEl.innerHTML = "";
+
+  // 1) sesja
+  const me = await req("/api/auth/me");
+  if (!me.ok || !me.body?.user){
+    setLoggedOut(me.body?.error || "Brak sesji.");
+    return;
+  }
+  setLoggedIn(me.body.user.login);
+
+  // 2) jeśli masz backendowy dashboard
+  const dash = await req("/api/user/dashboard");
+  if (dash.ok){
+    const reservations = dash.body?.reservations || [];
+    const events = dash.body?.events || [];
+
+    // rezerwacje
+    if (!reservations.length) renderEmpty(upResEl, "Brak najbliższych rezerwacji");
+    else {
+      upResEl.innerHTML = reservations.map(r =>
+        userItemHTML(
+          "ri-hotel-bed-line",
+          `${r.room_type || r.TypPokoju || "Pokój"} ${r.room_number || r.NumerPokoju || ""}`.trim(),
+          `${fmtDate(r.check_in || r.DataOd)} → ${fmtDate(r.check_out || r.DataDo)}`
+        )
+      ).join("");
+    }
+
+    // eventy
+    if (!events.length) renderEmpty(upEventsEl, "Brak zapisów na eventy");
+    else {
+      upEventsEl.innerHTML = events.map(e =>
+        userItemHTML(
+          "ri-calendar-event-line",
+          `${e.title || e.Tytul || e.name || e.Nazwa || "Event"}`,
+          `Start: ${fmtDate(e.start_at || e.starts_at || e.Data || e.date)}`
+        )
+      ).join("");
+    }
+
+    upHintEl.textContent = "To są najbliższe Twoje aktywności.";
+    return;
+  }
+
+  // 3) fallback: rezerwacje z /api/rooms/my
+  const r = await req("/api/rooms/my");
+  if (r.ok && Array.isArray(r.body?.items)){
+    const items = r.body.items.slice(0, 5);
+    if (!items.length) renderEmpty(upResEl, "Brak najbliższych rezerwacji");
+    else {
+      upResEl.innerHTML = items.map(x =>
+        userItemHTML(
+          "ri-hotel-bed-line",
+          `${x.TypPokoju} (${x.NumerPokoju})`,
+          `${String(x.DataOd).slice(0,10)} → ${String(x.DataDo).slice(0,10)} • ${x.Status}`
+        )
+      ).join("");
+    }
+  } else {
+    renderEmpty(upResEl, "Rezerwacje");
+  }
+
+  // 4) fallback: eventy z /api/events/my
+  const ev = await req("/api/events/my");
+  console.log("EVENTS /api/events/my:", ev.status, ev.ok, ev.body);
+
+  const evList =
+    Array.isArray(ev.body) ? ev.body :
+    Array.isArray(ev.body?.items) ? ev.body.items :
+    Array.isArray(ev.body?.events) ? ev.body.events :
+    [];
+
+  if (!ev.ok){
+    renderEmpty(upEventsEl, "Eventy (błąd API /api/events/my)");
+  } else if (!evList.length){
+    renderEmpty(upEventsEl, "Brak zapisów na eventy");
+  } else {
+    upEventsEl.innerHTML = evList.slice(0,5).map(e =>
+      userItemHTML(
+        "ri-calendar-event-line",
+        e.title || e.Tytul || e.name || e.Nazwa || "Event",
+        `Start: ${String(e.start_at || e.starts_at || e.Data || e.date || "").slice(0,16)}`
+      )
+    ).join("");
+  }
+
+  upHintEl.textContent = "Panel działa.";
+}
+
+
+    function openUserPanel(){
+      upOverlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      loadUserPanel();
+    }
+
+    function closeUserPanel(){
+      if (!upOverlay) return;
+      upOverlay.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    upOpenBtn?.addEventListener("click", openUserPanel);
+    upCloseBtn?.addEventListener("click", closeUserPanel);
+    upOverlay?.addEventListener("click", (e)=>{ if(e.target === upOverlay) closeUserPanel(); });
+
+    upLogoutBtn?.addEventListener("click", async ()=>{
+      await req("/api/auth/logout", { method:"POST" });
+      setLoggedOut("Wylogowano.");
+      // opcjonalnie: odśwież rezerwacje na stronie
+      await checkLogin();
+      await loadMyReservations();
+    });
 
     // init dat
     const minDate = todayISO();

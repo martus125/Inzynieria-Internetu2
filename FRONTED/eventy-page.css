@@ -329,3 +329,18 @@
   transform: scale(1.06);
   filter: saturate(1.12) contrast(1.06);
 }
+.event-media{
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.18);
+  margin-bottom: 12px;
+}
+
+.event-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

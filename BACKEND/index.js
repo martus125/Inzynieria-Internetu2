@@ -188,7 +188,7 @@ app.get("/api/rooms/search", async (req, res) => {
   const today = startOfTodayLocal();
 
   if (dateFrom < today) {
-    return res.status(400).json({ error: "Nie można wyszukiwać pokoi w przeszłości. Wybierz dzisiejszą lub przyszłą datę." });
+    return res.status(400).json({ error: "Nie można wyszukiwać pokoi w przeszłości." });
   }
   if (!(dateTo > dateFrom)) return res.status(400).json({ error: "Data 'to' musi być po 'from'." });
 
@@ -246,7 +246,6 @@ app.post("/api/rooms/book", requireAuth, async (req, res) => {
   const nt = String(notes || "").trim();
 
   if (fn.length < 2 || ln.length < 2) return res.status(400).json({ error: "Podaj imię i nazwisko." });
-  if (ph.length && ph.length < 7) return res.status(400).json({ error: "Telefon wygląda na zbyt krótki." });
   if (nt.length > 400) return res.status(400).json({ error: "Uwagi max 400 znaków." });
 
   const totalGuests = adults + kids;
@@ -255,9 +254,7 @@ app.post("/api/rooms/book", requireAuth, async (req, res) => {
   const dateTo = new Date(to + "T00:00:00");
   const today = startOfTodayLocal();
 
-  if (dateFrom < today) {
-    return res.status(400).json({ error: "Nie można rezerwować pokoju w przeszłości." });
-  }
+  if (dateFrom < today) return res.status(400).json({ error: "Nie można rezerwować w przeszłości." });
   if (!(dateTo > dateFrom)) return res.status(400).json({ error: "Data 'to' musi być po 'from'." });
 
   const nights = Math.round((dateTo - dateFrom) / (1000 * 60 * 60 * 24));
@@ -312,12 +309,6 @@ app.post("/api/rooms/book", requireAuth, async (req, res) => {
     rq.input("Nazwisko", sql.NVarChar(100), ln);
     rq.input("Telefon", sql.NVarChar(30), ph);
     rq.input("Uwagi", sql.NVarChar(400), nt);
-
-    await rq.query(`
-      UPDATE dbo.Klienci
-      SET FirstName = @Imie, LastName = @Nazwisko
-      WHERE UserID = @UserID;
-    `);
 
     const ins = await rq.query(`
       INSERT INTO dbo.RezerwacjeNoclegow
@@ -381,7 +372,7 @@ app.get("/api/rooms/my", requireAuth, async (req, res) => {
    EVENTY (SQL SERVER + PL)
 ========================= */
 
-// lista eventów + sloty (POLSKIE TABELE)
+// lista eventów + sloty
 app.get("/api/events", async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -452,7 +443,6 @@ app.post("/api/events/:id/signup", requireAuth, async (req, res) => {
     rq.input("WydarzenieID", sql.Int, eventId);
     rq.input("SlotID", sql.Int, sId);
 
-    // blokujemy slot (żeby nie było overbookingu)
     const slot = await rq.query(`
       SELECT PozostaleMiejsca
       FROM dbo.SlotyWydarzen WITH (UPDLOCK, HOLDLOCK)
@@ -472,14 +462,12 @@ app.post("/api/events/:id/signup", requireAuth, async (req, res) => {
 
     rq.input("LiczbaOsob", sql.Int, pc);
 
-    // odejmij miejsca
     await rq.query(`
       UPDATE dbo.SlotyWydarzen
       SET PozostaleMiejsca = PozostaleMiejsca - @LiczbaOsob
       WHERE SlotID = @SlotID;
     `);
 
-    // dodaj zapis
     rq.input("UserID", sql.Int, userId);
     rq.input("Imie", sql.NVarChar(60), String(firstName).trim());
     rq.input("Nazwisko", sql.NVarChar(80), String(lastName).trim());
@@ -500,6 +488,83 @@ app.post("/api/events/:id/signup", requireAuth, async (req, res) => {
   }
 });
 
+// ✅ moje eventy (panel użytkownika)
+app.get("/api/events/my", requireAuth, async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const r = await pool
+      .request()
+      .input("UserID", sql.Int, req.session.user.id)
+      .query(`
+        SELECT TOP 5
+          w.WydarzenieID AS id,
+          w.Tytul        AS title,
+          s.Godzina      AS start_at,
+          z.LiczbaOsob   AS peopleCount,
+          z.SlotID       AS slotId
+        FROM dbo.ZapisyWydarzen z
+        JOIN dbo.Wydarzenia w    ON w.WydarzenieID = z.WydarzenieID
+        JOIN dbo.SlotyWydarzen s ON s.SlotID = z.SlotID
+        WHERE z.UserID = @UserID
+          AND w.CzyAktywne = 1
+          AND s.CzyAktywne = 1
+          AND s.Godzina >= GETDATE()
+        ORDER BY s.Godzina ASC;
+      `);
+
+    res.json({ ok: true, items: r.recordset });
+  } catch (e) {
+    console.error("Błąd /api/events/my:", e);
+    res.status(500).json({ error: "DB error (events/my)", details: e.message });
+  }
+});
+
+// dashboard (jeśli gdzieś używasz)
+app.get("/api/user/dashboard", requireAuth, async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const reservationsQ = await pool.request()
+      .input("UserID", sql.Int, req.session.user.id)
+      .query(`
+        SELECT TOP 5
+          rn.DataZameldowania AS check_in,
+          rn.DataWymeldowania AS check_out,
+          rn.StatusRezerwacji AS status,
+          p.NumerPokoju AS room_number,
+          p.TypPokoju AS room_type
+        FROM dbo.RezerwacjeNoclegow rn
+        JOIN dbo.Pokoje p ON p.PokojID = rn.PokojID
+        WHERE rn.UserID = @UserID
+        ORDER BY rn.DataZameldowania ASC;
+      `);
+
+    const eventsQ = await pool.request()
+      .input("UserID", sql.Int, req.session.user.id)
+      .query(`
+        SELECT TOP 5
+          w.WydarzenieID AS id,
+          w.Tytul AS title,
+          s.Godzina AS start_at,
+          z.LiczbaOsob AS people_count
+        FROM dbo.ZapisyWydarzen z
+        JOIN dbo.Wydarzenia w ON w.WydarzenieID = z.WydarzenieID
+        JOIN dbo.SlotyWydarzen s ON s.SlotID = z.SlotID
+        WHERE z.UserID = @UserID
+          AND s.Godzina >= GETDATE()
+        ORDER BY s.Godzina ASC;
+      `);
+
+    res.json({
+      ok: true,
+      reservations: reservationsQ.recordset,
+      events: eventsQ.recordset,
+    });
+  } catch (e) {
+    res.status(500).json({ error: "DB error (dashboard)", details: e.message });
+  }
+});
 
 const port = Number(process.env.PORT || 3000);
 app.listen(port, () => console.log(`Backend działa na http://localhost:${port}`));

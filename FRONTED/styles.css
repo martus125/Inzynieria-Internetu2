@@ -402,3 +402,152 @@ body.auth-page{
 @media (max-width: 860px){
   .auth-page .grid-cards{ grid-template-columns: 1fr; }
 }
+/* ===== USER PANEL (modal) ===== */
+.nav__right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.nav__userbtn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.92);
+  color: var(--nav-text);
+  cursor:pointer;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 700;
+}
+.nav__userbtn:hover{ transform: translateY(-1px); }
+
+.upanel-overlay[hidden]{ display:none; }
+.upanel-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(2,6,23,.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.upanel{
+  width: min(980px, 96vw);
+  background: rgba(255,255,255,.96);
+  color: #0b1220;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 18px 60px rgba(2,6,23,.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.upanel__close{
+  position:absolute;
+  top: 12px;
+  right: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.95);
+  cursor:pointer;
+}
+
+.upanel__header{
+  padding: 18px 18px 10px;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.upanel__eyebrow{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.upanel__header h2{
+  margin: 0;
+  font-size: 22px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.upanel__grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 16px 18px 18px;
+}
+
+.upanel__section{
+  background: #f7faf9;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.upanel__section h3{
+  margin: 0 0 10px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.upanel__item{
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 14px;
+  padding: 12px;
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+  margin-bottom: 10px;
+}
+
+.upanel__icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(14,165,233,.14);
+  border: 1px solid rgba(14,165,233,.20);
+  flex: 0 0 auto;
+}
+
+.upanel__meta{
+  display:flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.upanel__title{
+  font-weight: 800;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+.upanel__sub{
+  color: #44504c;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.upanel__hint{
+  padding: 0 18px 18px;
+  margin: 0;
+  color: #6b7280;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+@media (max-width: 840px){
+  .upanel__grid{ grid-template-columns: 1fr; }
+}
