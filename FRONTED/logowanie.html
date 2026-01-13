@@ -20,7 +20,7 @@
         </button>
       </div>
       <ul class="nav__links" id="nav--links">
-        <li><a href="../src/index.html">Home</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="onas.html">O nas</a></li>
         <li><a href="pokoje.html">Pokoje</a></li>
         <li><a href="menu.html">Menu</a></li>
@@ -64,32 +64,38 @@
   </section>
 
   <script>
-  const BASE =
-    (location.protocol.startsWith("http") && location.host === "localhost:3000")
+    // ✅ Baza API:
+    // - jeśli jesteś na porcie 3000 (czyli strona jest serwowana przez backend) -> użyj ""
+    // - jeśli jesteś na innym porcie (Live Server itp.) -> użyj "http://localhost:3000"
+    const BASE = (location.protocol.startsWith("http") && location.port === "3000")
       ? ""
       : "http://localhost:3000";
 
-  async function request(path, opts = {}) {
-    try {
+    async function request(path, opts = {}) {
       const url = path.startsWith("http") ? path : (BASE + path);
 
-      const r = await fetch(url, {
-        credentials: "include",
-        ...opts,
-      });
+      try {
+        const r = await fetch(url, {
+          credentials: "include",
+          ...opts,
+        });
 
-      let body = {};
-      try { body = await r.json(); } catch (e) {}
+        let body = {};
+        try { body = await r.json(); } catch (e) {}
 
-      return { ok: r.ok, status: r.status, body };
-    } catch (err) {
-      return { ok: false, status: 0, body: { error: "Brak połączenia z backendem" } };
+        if (!r.ok) {
+          console.warn("API ERROR:", r.status, url, body);
+        }
+
+        return { ok: r.ok, status: r.status, body };
+      } catch (err) {
+        console.error("FETCH ERROR:", url, err);
+        return { ok: false, status: 0, body: { error: "Brak połączenia z backendem" } };
+      }
     }
-  }
 
-  const regForm = document.getElementById("regForm");
-  if (regForm) {
-    regForm.addEventListener("submit", async (e) => {
+    // REJESTRACJA
+    document.getElementById("regForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const body = Object.fromEntries(new FormData(e.currentTarget).entries());
 
@@ -99,14 +105,12 @@
         body: JSON.stringify(body),
       });
 
-      const el = document.getElementById("regMsg");
-      if (el) el.textContent = res.ok ? "Konto utworzone!" : (res.body.error || "Błąd rejestracji");
+      document.getElementById("regMsg").textContent =
+        res.ok ? "Konto utworzone!" : (res.body.error || "Błąd rejestracji");
     });
-  }
 
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
+    // LOGOWANIE
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const body = Object.fromEntries(new FormData(e.currentTarget).entries());
 
@@ -116,44 +120,35 @@
         body: JSON.stringify(body),
       });
 
-      const el = document.getElementById("loginMsg");
-      if (el) el.textContent = res.ok ? "Zalogowano!" : (res.body.error || "Błąd logowania");
+      document.getElementById("loginMsg").textContent =
+        res.ok ? "Zalogowano!" : (res.body.error || "Błąd logowania");
     });
-  }
 
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
+    // WYLOGUJ
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
       await request("/api/auth/logout", { method: "POST" });
-      const el = document.getElementById("whoamiMsg");
-      if (el) el.textContent = "Wylogowano";
+      document.getElementById("whoamiMsg").textContent = "Wylogowano";
     });
-  }
 
-  const whoamiBtn = document.getElementById("whoamiBtn");
-  if (whoamiBtn) {
-    whoamiBtn.addEventListener("click", async () => {
+    // KIM JESTEM
+    document.getElementById("whoamiBtn").addEventListener("click", async () => {
       const res = await request("/api/auth/me");
       const el = document.getElementById("whoamiMsg");
-      if (!el) return;
-      req.session.user = { id: user.UserID, login: user.Email };
-
 
       const u = res.body?.user;
-const label = u?.login ?? u?.email ?? u?.Email ?? u?.username ?? u?.Login ?? "(brak)";
-document.getElementById('whoamiMsg').textContent =
-  res.ok && u ? ('Zalogowany jako: ' + label) : (res.body.error || 'Nie zalogowano');
+      const label = u?.login ?? u?.email ?? "(brak)";
 
+      el.textContent = (res.ok && u)
+        ? ("Zalogowany jako: " + label)
+        : (res.body.error || "Nie zalogowano");
     });
-  }
 
-  // hamburger
-  (function () {
-    const btn = document.getElementById("menu-btn");
-    const links = document.getElementById("nav--links");
-    if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
-  })();
-</script>
-
+    // hamburger
+    (function () {
+      const btn = document.getElementById("menu-btn");
+      const links = document.getElementById("nav--links");
+      if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
+    })();
+  </script>
 </body>
 </html>

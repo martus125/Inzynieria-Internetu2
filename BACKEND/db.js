@@ -1,8 +1,8 @@
 import sql from "mssql";
 import dotenv from "dotenv";
 
-// twardo wskazujemy .env w tym samym folderze co db.js
-dotenv.config({ path: new URL("./.env", import.meta.url) });
+// ładujemy .env z folderu BACKEND
+dotenv.config();
 
 console.log("ENV CHECK:", {
   DB_SERVER: process.env.DB_SERVER,
@@ -13,7 +13,7 @@ console.log("ENV CHECK:", {
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER,         // <- tu ma być string
+  server: process.env.DB_SERVER,
   database: process.env.DB_DATABASE,
   port: Number(process.env.DB_PORT || 1433),
   options: {
@@ -23,11 +23,13 @@ const config = {
   pool: { max: 10, min: 0, idleTimeoutMillis: 30000 },
 };
 
-export const poolPromise = new sql.ConnectionPool(config)
+const pool = new sql.ConnectionPool(config);
+
+export const poolPromise = pool
   .connect()
-  .then((pool) => {
+  .then((p) => {
     console.log("✅ Połączono z Azure SQL");
-    return pool;
+    return p;
   })
   .catch((err) => {
     console.error("❌ Błąd połączenia z Azure SQL:", err);

@@ -1,6 +1,5 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -14,44 +13,45 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(session({
-  name: "olimp.sid",
-  secret: process.env.SESSION_SECRET || "dev-secret",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000,
-  }
-}));
-
-
-app.use(express.static(path.join(__dirname, "../FRONTED")));
-
-
+// --- JSON + cookies
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: true,        // odbija origin z przeglądarki
-  credentials: true,
-}));
 
-
+// --- CORS (dev: działa też z Live Server / file://)
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "dev-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: "lax", secure: false },
+  cors({
+    origin: true,          // odbija origin (w dev wygodne)
+    credentials: true,
   })
 );
 
-// odpowiedz czy backend zyje
+// preflight dla POST/JSON
+app.options(/.*/, cors({ origin: true, credentials: true }));
+
+
+// --- SESJA (tylko raz!)
+app.use(
+  session({
+    name: "olimp.sid",
+    secret: process.env.SESSION_SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // dev bez https
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
+// --- statyczny frontend
+app.use(express.static(path.join(__dirname, "../FRONTED")));
+
+// --- TEST: czy backend żyje
 app.get("/api/ping", (req, res) => res.json({ ok: true, msg: "Backend działa" }));
 
-// healthcheck DB
+// --- TEST: czy baza działa
 app.get("/api/health", async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -62,7 +62,7 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-// rejestracja
+// --- REJESTRACJA
 app.post("/api/auth/register", async (req, res) => {
   const { login, password } = req.body || {};
   if (!login || !password || password.length < 6) {
@@ -72,7 +72,6 @@ app.post("/api/auth/register", async (req, res) => {
   try {
     const pool = await poolPromise;
 
-    // login z frontu traktujemy jako Email w dbo.Klienci
     const check = await pool
       .request()
       .input("email", sql.NVarChar(255), login)
@@ -84,7 +83,6 @@ app.post("/api/auth/register", async (req, res) => {
 
     const hash = bcrypt.hashSync(password, 10);
 
-    // NOT NULL w dbo.Klienci: Email, PasswordHash, FirstName, LastName, IsActive, UserRole, CreatedDate
     await pool
       .request()
       .input("Email", sql.NVarChar(255), login)
@@ -103,8 +101,7 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-
-// logowanie
+// --- LOGOWANIE
 app.post("/api/auth/login", async (req, res) => {
   const { login, password } = req.body || {};
   if (!login || !password) return res.status(400).json({ error: "Brak danych" });
@@ -128,29 +125,35 @@ app.post("/api/auth/login", async (req, res) => {
     const ok = bcrypt.compareSync(password, user.PasswordHash);
     if (!ok) return res.status(401).json({ error: "Zły login lub hasło" });
 
-    req.session.user = { id: user.id, login: user.login };
+    // ✅ poprawne pola
+    req.session.user = { id: user.UserID, login: user.Email };
 
-req.session.save((err) => {
-  if (err) return res.status(500).json({ error: "Session save error" });
-  return res.json({ ok: true, user: { id: user.id, login: user.login } });
-});
-
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ error: "Session save error" });
+      return res.json({ ok: true, user: req.session.user });
+    });
   } catch (e) {
     return res.status(500).json({ error: "DB error (login)", details: e.message });
   }
 });
 
-
-// kim jestem
+// --- KIM JESTEM
 app.get("/api/auth/me", (req, res) => {
   if (!req.session.user) return res.status(401).json({ error: "Brak sesji" });
   res.json({ ok: true, user: req.session.user });
 });
 
-// wyloguj
+// --- WYLOGUJ
 app.post("/api/auth/logout", (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
-
 const port = Number(process.env.PORT || 3000);
-app.listen(port, () => console.log(`Backend działa na http://localhost:${port}`));
+
+const server = app.listen(port, () => {
+  console.log(`Backend działa na http://localhost:${port}`);
+});
+
+server.on("error", (err) => console.error("❌ LISTEN ERROR:", err));
+
+process.on("unhandledRejection", (reason) => console.error("❌ unhandledRejection:", reason));
+process.on("uncaughtException", (err) => console.error("❌ uncaughtException:", err));
