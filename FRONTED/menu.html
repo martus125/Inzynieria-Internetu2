@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="./eventy-page.css" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <title>Menu | Hotel Olimp</title>
 </head>
-<body>
+<body class="events-page">
   <nav>
     <div class="nav__bar">
       <div class="nav__header">
@@ -19,9 +20,8 @@
           <i class="ri-menu-line"></i>
         </button>
       </div>
-
       <ul class="nav__links" id="nav--links">
-        <li><a href="../src/index.html">Home</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="onas.html">O nas</a></li>
         <li><a href="pokoje.html">Pokoje</a></li>
         <li><a href="menu.html" class="active">Menu</a></li>
@@ -31,122 +31,134 @@
     </div>
   </nav>
 
- 
+  <header class="events-hero">
+    <div class="events-hero__inner">
+      <p class="eyebrow">Smaki Hotelu Olimp</p>
+      <h1>NASZE MENU</h1>
+      <p>Kliknij w kategorię, aby zobaczyć nasze specjały.</p>
+    </div>
+  </header>
 
-  <section class="hero hero--center">
-        <div class="eyebrow">Oferta Restauracji</div>
-        <h1 class="header-title">Nasze Menu</h1>
-        <p class="header-subtitle">Nasza autorska kuchnia oferuje szeroki zakres dań i napojów, bazując na świeżych, lokalnych produktach. Zapraszamy!</p>
+  <main class="events-wrap">
+    <section class="menu-categories-grid">
+      <div class="category-card" onclick="openMenu('breakfast')">
+        <i class="ri-sun-line"></i>
+        <h3>Śniadania</h3>
+      </div>
+      <div class="category-card" onclick="openMenu('lunch')">
+        <i class="ri-knife-line"></i>
+        <h3>Obiady</h3>
+      </div>
+      <div class="category-card" onclick="openMenu('dinner')">
+        <i class="ri-moon-line"></i>
+        <h3>Kolacje</h3>
+      </div>
+      <div class="category-card" onclick="openMenu('desserts')">
+        <i class="ri-cake-3-line"></i>
+        <h3>Desery</h3>
+      </div>
+      <div class="category-card" onclick="openMenu('drinks')">
+        <i class="ri-beer-line"></i>
+        <h3>Drinki i Napoje</h3>
+      </div>
     </section>
+  </main>
 
-  <section class="grid-cards grid-menu-meals">
+  <div id="menu-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeMenu()">&times;</button>
+      <div id="modal-body">
+        </div>
+    </div>
+  </div>
 
-        <article class="card menu-card">
-            <h3 class="card-title-alt"><i class="ri-sun-line"></i> Śniadania</h3>
-            <ul class="menu-list">
-                <li>Omlet ze szparagami i serem kozim <span>29 zł</span></li>
-                <li>Jajecznica z trzema jaj z bekonem <span>25 zł</span></li>
-                <li>Tost francuski z syropem klonowym <span>22 zł</span></li>
-                <li>Płatki owsiane z owocami sezonowymi <span>18 zł</span></li>
-                <li>Kanapki z łososiem i kaparami <span>32 zł</span></li>
-                <li>Pancakes z bitą śmietaną <span>24 zł</span></li>
-                <li>Talerz wędlin i serów regionalnych <span>35 zł</span></li>
-                <li>Smoothie bowl z jagodami <span>26 zł</span></li>
-                <li>Croissant z dżemem i masłem <span>15 zł</span></li>
-                <li>Fasolka po bretońsku na ciepło <span>20 zł</span></li>
-                <li>Sałatka owocowa z jogurtem greckim <span>19 zł</span></li>
-            </ul>
-        </article>
-
-        <article class="card menu-card">
-            <h3 class="card-title-alt"><i class="ri-knife-line"></i> Dania Główne (Obiad)</h3>
-            <ul class="menu-list">
-                <li>Polędwiczka wieprzowa w sosie kurkowym <span>69 zł</span></li>
-                <li>Filet z dorsza z warzywami parowanymi <span>75 zł</span></li>
-                <li>Stek wołowy z puree truflowym <span>119 zł</span></li>
-                <li>Pierogi ruskie z kwaśną śmietaną (12 szt.) <span>38 zł</span></li>
-                <li>Ravioli z ricottą i szpinakiem <span>55 zł</span></li>
-                <li>Rosół z domowym makaronem <span>22 zł</span></li>
-                <li>Krem z pomidorów z grzankami <span>24 zł</span></li>
-                <li>Burger wołowy Premium z frytkami <span>59 zł</span></li>
-                <li>Sałatka Cezar z kurczakiem grillowanym <span>49 zł</span></li>
-                <li>Gulasz węgierski z plackami ziemniaczanymi <span>65 zł</span></li>
-                <li>Kaczka pieczona z jabłkami i żurawiną <span>89 zł</span></li>
-            </ul>
-        </article>
-
-        <article class="card menu-card">
-            <h3 class="card-title-alt"><i class="ri-moon-line"></i> Kolacje</h3>
-            <ul class="menu-list">
-                <li>Carpaccio z polędwicy wołowej <span>45 zł</span></li>
-                <li>Krem z białych warzyw z oliwą truflową <span>28 zł</span></li>
-                <li>Grillowane krewetki z sosem czosnkowym <span>59 zł</span></li>
-                <li>Lasagne z warzywami sezonowymi <span>49 zł</span></li>
-                <li>Risotto z owocami morza <span>78 zł</span></li>
-                <li>Tarta warzywna z serem feta <span>42 zł</span></li>
-                <li>Świeże ostrygi (6 szt.) <span>85 zł</span></li>
-                <li>Zupa cebulowa z grzanką serową <span>26 zł</span></li>
-                <li>Wybór pieczywa rzemieślniczego z pastami <span>20 zł</span></li>
-                <li>Pstrąg pieczony z migdałami <span>69 zł</span></li>
-                <li>Escalopki cielęce w sosie śmietanowym <span>82 zł</span></li>
-            </ul>
-        </article>
-    </section>
-    
-    <section class="grid-cards grid-menu-drinks">
-        
-        <article class="card menu-card menu-card--half">
-            <h3 class="card-title-alt"><i class="ri-cake-3-line"></i> Desery</h3>
-            <ul class="menu-list">
-                <li>Tartaletka cytrynowa z bezą włoską <span>29 zł</span></li>
-                <li>Fondant czekoladowy z lodami waniliowymi <span>35 zł</span></li>
-                <li>Lody rzemieślnicze (3 gałki) <span>25 zł</span></li>
-                <li>Puchar lodowy z owocami i bitą śmietaną <span>28 zł</span></li>
-                <li>Sernik z sosem malinowym <span>30 zł</span></li>
-                <li>Panna Cotta z sosem mango <span>32 zł</span></li>
-                <li>Crème brûlée z malinami <span>34 zł</span></li>
-                <li>Deska serów i owoców <span>55 zł</span></li>
-                <li>Tort bezowy Pavlova <span>38 zł</span></li>
-                <li>Szarlotka na ciepło z lodami <span>27 zł</span></li>
-                <li>Wybór mini deserów szefa <span>40 zł</span></li>
-            </ul>
-        </article>
-
-        <article class="card menu-card menu-card--half">
-            <h3 class="card-title-alt"><i class="ri-beer-line"></i> Napoje i Drinki</h3>
-            
-            <h4>Napoje bezalkoholowe:</h4>
-            <ul class="menu-list">
-                <li>Woda mineralna (gazowana/niegazowana) <span>10 zł</span></li>
-                <li>Świeżo wyciskany sok (pomarańcza/grejpfrut) <span>18 zł</span></li>
-                <li>Cola / Sprite / Fanta <span>12 zł</span></li>
-                <li>Lemoniada domowa <span>15 zł</span></li>
-                <li>Kawa i espresso <span>12 zł</span></li>
-                <li>Herbata Earl Grey / Zielona <span>10 zł</span></li>
-            </ul>
-            
-            <h4>Koktajle Klasyczne:</h4>
-            <ul class="menu-list">
-                <li>Mojito (Rum, Limonka, Mięta, Soda) <span>35 zł</span></li>
-                <li>Aperol Spritz (Aperol, Prosecco, Soda) <span>32 zł</span></li>
-                <li>Margarita (Tequila, Cointreau, Limonka) <span>38 zł</span></li>
-                <li>Old Fashioned (Bourbon, Cukier, Angostura) <span>45 zł</span></li>
-            </ul>
-
-            <h4>Wina (Kieliszek):</h4>
-            <ul class="menu-list">
-                <li>Chardonnay (Białe, Wytrawne) <span>25 zł</span></li>
-                <li>Merlot (Czerwone, Półwytrawne) <span>28 zł</span></li>
-                <li>Prosecco (Musujące, Wytrawne) <span>30 zł</span></li>
-            </ul>
-            
-        </article>
-    </section>
-
-    <section style="height: 100px;"></section>
-
-        
   <script>
+    // Dane menu w obiekcie JS
+    const menuData = {
+      breakfast: {
+        title: "Oferta Poranna",
+        items: [
+          {n: "Omlet ze szparagami i serem kozim", p: "29 zł"},
+          {n: "Jajecznica z 3 jaj na maśle z boczkiem", p: "25 zł"},
+          {n: "Tost francuski z syropem klonowym i owocami", p: "22 zł"},
+          {n: "Pancakes z jagodami i bitą śmietaną", p: "24 zł"},
+          {n: "Eggs Benedict na brioszce z łososiem", p: "34 zł"},
+          {n: "Szakszuka z pomidorami i kolendrą", p: "28 zł"},
+          {n: "Smoothie bowl z granolą i chia", p: "26 zł"},
+          {n: "Croissant z konfiturą różaną i masłem", p: "15 zł"},
+          {n: "Talerz serów i wędlin regionalnych", p: "35 zł"}
+        ]
+      },
+      lunch: {
+        title: "Dania Główne",
+        items: [
+          {n: "Polędwiczka wieprzowa w sosie kurkowym", p: "69 zł"},
+          {n: "Filet z dorsza z puree groszkowym", p: "75 zł"},
+          {n: "Stek wołowy z masłem czosnkowym", p: "119 zł"},
+          {n: "Kaczka pieczona z jabłkami i żurawiną", p: "89 zł"},
+          {n: "Łosoś z grilla z dzikim ryżem", p: "72 zł"},
+          {n: "Tagliatelle z krewetkami i białym winem", p: "58 zł"},
+          {n: "Risotto z borowikami i parmezanem", p: "54 zł"},
+          {n: "Burger Olimp z wołowiną Angus", p: "59 zł"},
+          {n: "Krem z pomidorów pieczonych z pesto", p: "24 zł"}
+        ]
+      },
+      dinner: {
+        title: "Oferta Wieczornna",
+        items: [
+          {n: "Carpaccio wołowe z rukolą i kaparami", p: "45 zł"},
+          {n: "Grillowane krewetki w sosie winno-maślanym", p: "59 zł"},
+          {n: "Tatar z łososia z awokado", p: "48 zł"},
+          {n: "Deska tapas dla 2 osób", p: "85 zł"},
+          {n: "Sałatka z pieczonym burakiem i fetą", p: "39 zł"},
+          {n: "Świeże małże w białym winie (500g)", p: "65 zł"},
+          {n: "Zupa cebulowa z grzanką serową", p: "26 zł"}
+        ]
+      },
+      desserts: {
+        title: "Słodkie Specjały",
+        items: [
+          {n: "Fondant czekoladowy z lodami waniliowymi", p: "35 zł"},
+          {n: "Sernik nowojorski z sosem malinowym", p: "30 zł"},
+          {n: "Beza Pavlova z owocami sezonowymi", p: "38 zł"},
+          {n: "Crème brûlée z laską wanilii", p: "32 zł"},
+          {n: "Tartaletka z musem pistacjowym", p: "29 zł"},
+          {n: "Puchar lodów rzemieślniczych", p: "25 zł"},
+          {n: "Szarlotka na ciepło z bitą śmietaną", p: "27 zł"}
+        ]
+      },
+      
+      drinks: {
+        title: "Napoje i Koktajle",
+        items: [
+          {n: "Aperol Spritz (Klasyk)", p: "32 zł"},
+          {n: "Mojito z dużą ilością mięty", p: "35 zł"},
+          {n: "Whisky Sour Premium", p: "42 zł"},
+          {n: "Kawa Flat White / Latte", p: "16 zł"},
+          {n: "Herbata liściasta w dzbanku", p: "18 zł"},
+          {n: "Sok ze świeżych pomarańczy", p: "18 zł"},
+          {n: "Domowa lemoniada cytrynowa", p: "15 zł"},
+          {n: "Wino domowe (kieliszek)", p: "22 zł"}
+        ]
+      }
+    };
+
+    function openMenu(cat) {
+      const data = menuData[cat];
+      let html = `<h2>${data.title}</h2><ul class="modal-menu-list">`;
+      data.items.forEach(item => {
+        html += `<li>${item.n} <span>${item.p}</span></li>`;
+      });
+      html += `</ul>`;
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('menu-modal').classList.add('active');
+    }
+
+    function closeMenu() {
+      document.getElementById('menu-modal').classList.remove('active');
+    }
+
+    // Nawigacja mobilna
     const btn = document.getElementById('menu-btn');
     const links = document.getElementById('nav--links');
     if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));

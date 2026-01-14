@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="./eventy-page.css" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <title>O nas | Hotel Olimp</title>
 </head>
-<body>
+<body class="events-page">
+  
   <nav>
     <div class="nav__bar">
       <div class="nav__header">
@@ -20,61 +22,101 @@
         </button>
       </div>
 
-      <ul class="nav__links" id="nav--links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="onas.html" class="active">O nas</a></li>
-        <li><a href="pokoje.html">Pokoje</a></li>
-        <li><a href="menu.html">Menu</a></li>
-        <li><a href="eventy.html">Eventy</a></li>
-        <li><a href="logowanie.html">Logowanie</a></li>
-      </ul>
+      <div class="nav__right">
+        <ul class="nav__links" id="nav--links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="onas.html" class="active">O nas</a></li>
+          <li><a href="pokoje.html">Pokoje</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="eventy.html">Eventy</a></li>
+          <li><a href="logowanie.html">Logowanie</a></li>
+        </ul>
+      </div>
     </div>
   </nav>
 
- 
-<section class="hero hero--center">
-        <div class="eyebrow">O nas</div>
-        <h1 class="header-title">Kontakt i informacje</h1>
-        <p class="header-subtitle">Jesteśmy do Twojej dyspozycji 24/7. Skontaktuj się z nami lub poznaj naszą historię.</p>
-    </section>
+  <header class="events-hero">
+    <div class="events-hero__inner">
+      <p class="eyebrow">Wypoczynek i informacje</p>
+      <h1>O NAS</h1>
+      <p>Jesteśmy do Twojej dyspozycji 24/7. Skontaktuj się z nami lub poznaj naszą historię.</p>
+    </div>
+  </header>
 
-    <section class="grid-cards contact-info-grid">
+  <main class="events-wrap">
+   
+    <div class="map-container">
+      <div class="map-header">
+        <p class="eyebrow">Lokalizacja</p>
+        <h2>Gdzie nas znajdziesz?</h2>
+        <p>Zaplanuj swoją podróż do Hotelu Olimp. Znajdujemy się w samym sercu natury.</p>
+      </div>
+      <div class="map-frame">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2306.946738317765!2d18.417855612739493!3d54.79383687262451!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46fda1691238466b%3A0x6d90d56540f2f3e8!2sMorska%2015%2C%2084-120%20W%C5%82adys%C5%82awowo!5e0!3m2!1spl!2spl!4v1700000000000!5m2!1spl!2spl" 
+          width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+    </div>
 
-        <article class="card contact-card">
-            <h3 class="card-title-alt"><i class="ri-phone-line"></i> Skontaktuj się</h3>
-            <p>Zadzwoń do nas lub napisz e-mail, aby dokonać rezerwacji lub uzyskać informacje o ofercie.</p>
-            <div class="contact-details">
-                <p><strong>Telefon:</strong> <a href="tel:+48123456789">+48 123 456 789</a></p>
-                <p><strong>E-mail:</strong> <a href="mailto:rezerwacje@hotelolimp.pl">rezerwacje@hotelolimp.pl</a></p>
-                <p><strong>Adres:</strong> Ul. Słoneczna 5, 84-120 pipipipi</p>
-            </div>
-            <button class="btn room-btn premium-btn" style="margin-top: 15px;">Wyślij wiadomość</button>
-        </article>
+    <div class="history-container">
+      <div class="history-content">
+        <p class="eyebrow">Nasze Dziedzictwo</p>
+        <h2>Tradycja i Doskonałość od 2005 roku</h2>
+        <div class="history-text">
+          <p>Hotel Olimp powstał z pasji do tworzenia miejsc wyjątkowych. Od ponad dwóch dekad łączymy nadmorski klimat z najwyższym standardem obsługi.</p>
+          <p>Nasza filozofia jest prosta: <strong>Gość jest sercem naszego hotelu.</strong></p>
+        </div>
 
-        <article class="card contact-card">
-            <h3 class="card-title-alt"><i class="ri-map-pin-line"></i> Nasze Położenie</h3>
-            <p>Hotel Olimp to unikatowe miejsce, które łączy w sobie bliskość natury z luksusowymi udogodnieniami.</p>
-            <ul class="location-list">
-              <li><i class="ri-cloud-line"></i> <strong>Morze i Góry:</strong> Jesteśmy usytuowani ...</li>
-                <li><i class="ri-walk-line"></i> **Lokalizacja:** Hotel znajduje się w spokojnej okolicy, zaledwie 5 minut spacerem od plaży i szlaków turystycznych.</li>
-                <li><i class="ri-pin-distance-line"></i> **Idealny dla:** Wypoczynku, konferencji i eventów na łonie natury.</li>
-            </ul>
-        </article>
+        <div class="history-stats">
+          <div class="stat-item">
+            <i class="ri-award-line"></i>
+            <div class="stat-number">18+</div>
+            <div class="stat-label">Nagród Grand Prix</div>
+          </div>
+          <div class="stat-item">
+            <i class="ri-heart-3-line"></i>
+            <div class="stat-number">50 000</div>
+            <div class="stat-label">Zadowolonych Gości</div>
+          </div>
+          <div class="stat-item">
+            <i class="ri-star-smile-line"></i>
+            <div class="stat-number">5★</div>
+            <div class="stat-label">Standard Premium</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <article class="card contact-card">
-            <h3 class="card-title-alt"><i class="ri-history-line"></i>Historia</h3>
-            <p><strong>Działamy od: 2005 roku.</strong> Od początku naszą misją jest zapewnienie niezapomnianych wrażeń w otoczeniu elegancji.</p>
-            <p>Naszym głównym celem jest stałe podnoszenie standardów i dbałość o detale. Stawiamy na ekologiczne rozwiązania oraz kuchnię regionalną opartą na lokalnych produktach.</p>
-            <p>Wierzymy, że luksus to dbałość o gościa.</p>
-        </article>
-    </section>
-    <section style="height: 100px;"></section>
+     <div class="contact-details-container">
+      <p class="eyebrow">Kontakt</p>
+        <h2>            </h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <i class="ri-map-pin-2-fill contact-emoji"></i>
+          <h3>Adres</h3>
+          <p>ul. Morska 15, 84-120 Władysławowo</p>
+        </div>
 
-    <script>
-      const btn = document.getElementById('menu-btn');
-      const links = document.getElementById('nav--links');
-      if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));
-    </script>
-  </body>
+        <div class="contact-item">
+          <i class="ri-phone-fill contact-emoji"></i>
+          <h3>Telefon</h3>
+          <p>+48 500 600 700</p>
+        </div>
+
+        <div class="contact-item">
+          <i class="ri-mail-fill contact-emoji"></i>
+          <h3>E-mail</h3>
+          <p>kontakt@hotelolimp.pl</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('menu-btn');
+    const links = document.getElementById('nav--links');
+    if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));
+  </script>
+</body>
 </html>
-

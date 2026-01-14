@@ -1,107 +1,119 @@
 <!DOCTYPE html>
 <html lang="pl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
-    <link rel="stylesheet" href="./styles.css" />
-    <title>Hotel Olimp</title>
-    <style>
-      nav{ transition: opacity .22s ease, transform .22s ease; }
-      nav.nav--hidden{ opacity:0; transform: translateY(-14px); pointer-events:none; }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <div class="nav__bar">
-        <div class="nav__header">
-          <div class="logo nav__logo">
-            <div>H</div>
-            <span>HOTEL<br />Olimp</span>
-          </div>
-          <button class="nav__menu__btn" id="menu-btn" aria-label="Otwórz menu">
-            <i class="ri-menu-line"></i>
-          </button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>Hotel Olimp</title>
+</head>
+<body>
+  <nav>
+    <div class="nav__bar">
+      <div class="nav__header">
+        <div class="logo nav__logo">
+          <div>H</div>
+          <span>HOTEL<br />Olimp</span>
         </div>
-        <ul class="nav__links" id="nav--links">
-  <li><a href="index.html">Home</a></li>
-  <li><a href="onas.html">O nas</a></li>
-  <li><a href="pokoje.html">Pokoje</a></li>
-  <li><a href="menu.html">Menu</a></li>
-  <li><a href="eventy.html">Eventy</a></li>
-  <li><a href="logowanie.html">Logowanie</a></li>
-</ul>
-
-        </ul>
+        <button class="nav__menu__btn" id="menu-btn" aria-label="Otwórz menu">
+          <i class="ri-menu-line"></i>
+        </button>
       </div>
-    </nav>
+      <ul class="nav__links" id="nav--links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="onas.html">O nas</a></li>
+        <li><a href="pokoje.html">Pokoje</a></li>
+        <li><a href="menu.html">Menu</a></li>
+        <li><a href="eventy.html">Eventy</a></li>
+        <li><a href="logowanie.html">Logowanie</a></li>
+      </ul>
+    </div>
+  </nav>
 
-    <section id="home" class="hero">
-      <div class="eyebrow">DRIP TUTAJ COS NAPISAC</div>
-      <h1>Idealne miejsce<br />dla całej rodziny</h1>
-      <p>
-        Odkryj Hotel Olimp – miejsce, w którym tropikalny relaks spotyka się z elegancją.
-        Zatrzymaj się u nas, a resztą zajmiemy się my.
-      </p>
-      <a class="btn" href="onas.html">Interaktywny spacer? czy cos</a>
-    </section>
+  <section id="home" class="hero">
+    <div class="eyebrow">POZNAJ NASZ HOTEL</div>
+    <h1>Idealne miejsce<br />na wymarzone wakacje!</h1>
+    <p>Odkryj Hotel Olimp – miejsce, w którym tropikalny relaks spotyka się z elegancją.</p>
+  </section>
 
-    <section class="about-block">
-      <div class="about__inner">
-        <h2 class="about__title">HOTEL OLIMP</h2>
-        <p class="about__subtitle">RODZINNY ODPOCZYNEK NAD MORZEM</p>
-        <p class="about__lead">
-          Hotel Olimp to połączenie nowoczesnych, przytulnych wnętrz z wyjątkową lokalizacją tuż przy plaży.
-          Zimą pozwala odetchnąć od codzienności, latem zachwyca bliskością natury i widokami na morze.
-          U nas odpoczniesz tak, jak lubisz — aktywnie, rodzinnie lub totalnie na chill.
-        </p>
-                <a class="btn btn--outline" href="pokoje.html">SPRAWDŹ TERMINY</a>
+  <section class="room-showcase">
+  <div class="showcase-image">
+    <img src="pokoj222.jpg" alt="Luksusowy pokój w Hotelu Olimp">
+  </div>
+  <div class="showcase-cta">
+    <div class="cta-inner">
+      <h2>Odpocznij w naszych apartamentach</h2>
+      <p>Zaprojektowane z myślą o Twojej wygodzie. Pokoje oferują widok na morze i nowoczesne wyposażenie.</p>
+      <a href="pokoje.html" class="booking-btn-large">Sprawdź dostępność pokoi</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="room-showcase showcase-reverse">
+  <div class="showcase-cta">
+    <div class="cta-inner">
+      <p class="eyebrow">Wydarzenia i Atrakcje</p>
+      <h2>Eventy nad brzegiem morza</h2>
+      <p>Od wieczorów z muzyką na żywo, po ekskluzywne bankiety. Sprawdź, co przygotowaliśmy dla naszych gości w najbliższym czasie.</p>
+      <a href="eventy.html" class="booking-btn-large">Zobacz harmonogram</a>
+    </div>
+  </div>
+  <div class="showcase-image">
+    <img src="pokaz.jpg" alt="Eventy w Hotelu Olimp">
+  </div>
+</section>
+
+
+
+<section class="room-showcase">
+  <div class="showcase-image">
+    <img src="menu1.jpg" alt="Restauracja Hotelu Olimp">
+  </div>
+  <div class="showcase-cta">
+    <div class="cta-inner">
+      <p class="eyebrow">Restauracja Hotelu Olimp</p>
+      <h2>Przepyszna kuchnia z widokiem na morze</h2>
+      <p>Odkryj menu przygotowane przez naszych szefów kuchni. Stawiamy na świeże, lokalne produkty i niezapomniane doznania smakowe.</p>
+      <a href="menu.html" class="booking-btn-large">Sprawdź naszą ofertę</a>
+    </div>
+  </div>
+</section>
+
+<section class="simple-contact">
+  <div class="contact-wrapper">
+    <div class="contact-header">
+      <p class="eyebrow">Kontakt</p>
+      <h2>Zostańmy w kontakcie</h2>
+    </div>
+
+    <div class="contact-info-grid">
+      <div class="contact-box">
+        <i class="ri-map-pin-2-line"></i>
+        <h3>Adres</h3>
+        <p>ul. Morska 15<br>84-120 Władysławowo</p>
       </div>
-    </section>
 
-    <section class="grid-cards">
-      <article class="card"><h3>Rodzinne apartamenty</h3><p>Przestronne pokoje.</p></article>
-      <article class="card"><h3>Strefa relaksu</h3><p>Sauna i jacuzzi.</p></article>
-      <article class="card"><h3>Restauracja &amp; bar</h3><p>Świeże menu.</p></article>
-    </section>
+      <div class="contact-box">
+        <i class="ri-phone-line"></i>
+        <h3>Zadzwoń</h3>
+        <p>Recepcja: +48 500 600 700<br>Manager: +48 500 600 800</p>
+      </div>
 
-    <script>
-    (function () {
-      var btn   = document.getElementById('menu-btn');
-      var links = document.getElementById('nav--links');
-      var nav   = document.querySelector('nav');
+      <div class="contact-box">
+        <i class="ri-mail-send-line"></i>
+        <h3>Napisz</h3>
+        <p>kontakt@hotelolimp.pl<br>rezerwacje@hotelolimp.pl</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-      var HIDE_AFTER = 0;
-      var DELTA      = 1;
-      var lastY = window.scrollY || 0;
 
-      if (btn && links) {
-        btn.addEventListener('click', function () {
-          links.classList.toggle('open');
-        });
-      }
-
-      window.addEventListener('scroll', function () {
-        var y  = window.scrollY || window.pageYOffset;
-        var dy = y - lastY;
-
-        if (links && links.classList.contains('open')) {
-          nav && nav.classList.remove('nav--hidden');
-          lastY = y;
-          return;
-        }
-
-        if (y <= HIDE_AFTER) {
-          nav && nav.classList.remove('nav--hidden');
-        } else if (dy > DELTA) {
-          nav && nav.classList.add('nav--hidden');
-        } else if (dy < -DELTA) {
-          nav && nav.classList.remove('nav--hidden');
-        }
-
-        lastY = y;
-      });
-    })();
-    </script>
-  </body>
+  <script>
+    const btn = document.getElementById('menu-btn');
+    const links = document.getElementById('nav--links');
+    if (btn && links) btn.addEventListener('click', () => links.classList.toggle('open'));
+  </script>
+</body>
 </html>

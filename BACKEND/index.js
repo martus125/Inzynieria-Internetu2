@@ -15,6 +15,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 // statyczny frontend
 app.use(express.static(path.join(__dirname, "..", "FRONTED")));
 app.use("/images", express.static(path.join(__dirname, "..", "FRONTED", "images")));
@@ -368,9 +369,7 @@ app.get("/api/rooms/my", requireAuth, async (req, res) => {
   }
 });
 
-/* =========================
-   EVENTY (SQL SERVER + PL)
-========================= */
+/* EVENTY  */
 
 // lista eventów + sloty
 app.get("/api/events", async (req, res) => {
@@ -488,7 +487,7 @@ app.post("/api/events/:id/signup", requireAuth, async (req, res) => {
   }
 });
 
-// ✅ moje eventy (panel użytkownika)
+//  moje eventy (panel użytkownika)
 app.get("/api/events/my", requireAuth, async (req, res) => {
   try {
     const pool = await poolPromise;
