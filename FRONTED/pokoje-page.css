@@ -304,3 +304,28 @@ body.rooms-page::before{
   font-size: 13px;
   color:#475569;
 }
+
+body.pokoje-page {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+ 
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                    url("./images/beach.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; 
+}
+
+.pokoje-wrap {
+  padding-top: 100px;
+  padding-bottom: 50px;
+}
+
+.modal__card {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
