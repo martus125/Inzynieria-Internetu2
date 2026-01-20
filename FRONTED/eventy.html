@@ -499,55 +499,62 @@
     upLogoutBtn.style.display = "inline-block";
   }
 
-  async function loadUserPanel(){
-    upHintEl.textContent = "Ładowanie...";
-    upResEl.innerHTML = "";
-    upEventsEl.innerHTML = "";
+ async function loadUserPanel(){
+  upHintEl.textContent = "Ładowanie...";
+  upResEl.innerHTML = "";
+  upEventsEl.innerHTML = "";
 
-    const me = await request("/api/auth/me", { method:"GET" });
-    if (!me.ok || !me.body?.user){
-      setLoggedOut(me.body?.error || "Brak sesji.");
-      return;
-    }
-    setLoggedIn(me.body.user.login);
-
-    const dash = await request("/api/user/dashboard", { method:"GET" });
-    if(!dash.ok){
-      upHintEl.textContent = dash.body?.error || "Nie udało się pobrać panelu.";
-      renderEmpty(upResEl, "Rezerwacje");
-      renderEmpty(upEventsEl, "Eventy");
-      return;
-    }
-
-    const reservations = Array.isArray(dash.body?.reservations) ? dash.body.reservations : [];
-    const events = Array.isArray(dash.body?.events) ? dash.body.events : [];
-
-    if(!reservations.length){
-      renderEmpty(upResEl, "Brak najbliższych rezerwacji");
-    } else {
-      upResEl.innerHTML = reservations.slice(0,5).map(r =>
-        userItemHTML(
-          "ri-hotel-bed-line",
-          `Pokój ${r.room_number ?? ""} • ${r.room_type ?? ""}`.trim(),
-          `${String(r.check_in ?? "").slice(0,10)} → ${String(r.check_out ?? "").slice(0,10)} • ${r.status ?? ""}`
-        )
-      ).join("");
-    }
-
-    if(!events.length){
-      renderEmpty(upEventsEl, "Brak zapisów na eventy");
-    } else {
-      upEventsEl.innerHTML = events.slice(0,5).map(e =>
-        userItemHTML(
-          "ri-calendar-event-line",
-          e.title ?? "Event",
-          `Start: ${String(e.start_at ?? "").slice(0,16)} • osób: ${e.people_count ?? ""}`.trim()
-        )
-      ).join("");
-    }
-
-    upHintEl.textContent = "Panel działa.";
+  const me = await request("/api/auth/me", { method:"GET" });
+  if (!me.ok || !me.body?.user){
+    setLoggedOut(me.body?.error || "Brak sesji.");
+    return;
   }
+
+  setLoggedIn(me.body.user.login);
+
+  // 1) Rezerwacje z dashboard (tak jak było)
+  const dash = await request("/api/user/dashboard", { method:"GET" });
+  if(!dash.ok){
+    upHintEl.textContent = dash.body?.error || "Nie udało się pobrać panelu.";
+    renderEmpty(upResEl, "Rezerwacje");
+    renderEmpty(upEventsEl, "Eventy");
+    return;
+  }
+  console.log("dashboard =>", dash.body);
+  const reservations = Array.isArray(dash.body?.reservations) ? dash.body.reservations : [];
+
+  const events = Array.isArray(dash.body?.events) ? dash.body?.events : [];
+
+  // --- render rezerwacji ---
+  if(!reservations.length){
+    renderEmpty(upResEl, "Brak najbliższych rezerwacji");
+  } else {
+    upResEl.innerHTML = reservations.slice(0,5).map(r =>
+      userItemHTML(
+        "ri-hotel-bed-line",
+        `Pokój ${r.room_number ?? ""} • ${r.room_type ?? ""}`.trim(),
+        `${String(r.check_in ?? "").slice(0,10)} → ${String(r.check_out ?? "").slice(0,10)} • ${r.status ?? ""}`
+      )
+    ).join("");
+  }
+
+  // --- render eventów ---
+  // działa ;)
+  if(!events.length){
+    renderEmpty(upEventsEl, "Brak najbliższych eventów");
+    } else {
+    upEventsEl.innerHTML = events.slice(0,5).map(e =>
+      userItemHTML(
+        "ri-calendar-event-line",
+        e.title ?? "Event",
+        `Godzina: ${String(e.start_at ?? "").slice(0,5)} • osób: ${e.people_count ?? ""}`
+      )
+    ).join("");
+  }
+
+  upHintEl.textContent = "Panel działa.";
+}
+
 
   function openUserPanel(){
     upOverlay.hidden = false;

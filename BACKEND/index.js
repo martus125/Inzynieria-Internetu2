@@ -5,8 +5,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import session from "express-session";
-import bcrypt from "bcryptjs";
+import session from "express-session"; //kto jest zalogowany
+import bcrypt from "bcryptjs"; // hashowanie
 
 import { poolPromise, sql } from "./db.js";
 
@@ -44,7 +44,7 @@ app.use(
       httpOnly: true,
       sameSite: "lax",
       secure: false, // dev bez https
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000, //jak długo żyje cookies
     },
   })
 );
@@ -551,7 +551,7 @@ app.get("/api/user/dashboard", requireAuth, async (req, res) => {
         JOIN dbo.Wydarzenia w ON w.WydarzenieID = z.WydarzenieID
         JOIN dbo.SlotyWydarzen s ON s.SlotID = z.SlotID
         WHERE z.UserID = @UserID
-          AND s.Godzina >= GETDATE()
+          AND s.Godzina >= CAST(GETDATE() as TIME)
         ORDER BY s.Godzina ASC;
       `);
 
