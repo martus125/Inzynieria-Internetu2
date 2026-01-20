@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./admin-page.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" />
+  <title>Panel Admina | Hotel Olimp</title>
+</head>
+
+<body class="admin-page">
+  <nav>
+    <div class="nav__bar">
+      <div class="nav__header">
+        <div class="logo nav__logo">
+          <div>H</div>
+          <span>HOTEL<br />Olimp</span>
+        </div>
+        <button class="nav__menu__btn" id="menu-btn" aria-label="Otwórz menu">
+          <i class="ri-menu-line"></i>
+        </button>
+      </div>
+
+      <div class="nav__right">
+        <ul class="nav__links" id="nav--links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="onas.html">O nas</a></li>
+          <li><a href="pokoje.html">Pokoje</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="eventy.html">Eventy</a></li>
+          <li><a href="logowanie.html">Logowanie</a></li>
+          <li><a href="paneladmin.html" class="active">Panel Admina</a></li>
+        </ul>
+
+        <button class="nav__userbtn" id="logoutBtn" type="button" aria-label="Wyloguj admina">
+          <i class="ri-logout-box-r-line"></i>
+          <span>Wyloguj</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="admin-wrap">
+    <!-- LEWY PANEL (jak filtr w pokoje.html) -->
+    <aside class="admin-filter">
+      <h3>Panel admina</h3>
+
+      <div class="note" id="adminWho">Sprawdzam sesję…</div>
+
+      <div class="field">
+        <label>Szukaj (imię, nazwisko, telefon, pokój, userID)</label>
+        <input id="q" type="text" placeholder="np. Kowalski, 501..., 203" />
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select id="status">
+          <option value="">Wszystkie</option>
+          <option value="Nowa">Nowa</option>
+          <option value="Potwierdzona">Potwierdzona</option>
+          <option value="Anulowana">Anulowana</option>
+          <option value="Zrealizowana">Zrealizowana</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Sortowanie</label>
+        <select id="sort">
+          <option value="check_in_asc">Check-in rosnąco</option>
+          <option value="check_in_desc">Check-in malejąco</option>
+          <option value="created_desc">Utworzone (najnowsze)</option>
+          <option value="created_asc">Utworzone (najstarsze)</option>
+        </select>
+      </div>
+
+      <button class="search-btn" id="refreshBtn" type="button">
+        <i class="ri-refresh-line"></i> Odśwież dane
+      </button>
+
+      <button class="btn-secondary admin-clear" id="clearBtn" type="button">
+        <i class="ri-eraser-line"></i> Wyczyść filtry
+      </button>
+
+      <div class="note" style="margin-top:12px;font-weight:900" id="countPill">0 rezerwacji</div>
+
+      <div class="note admin-error" id="msg"></div>
+    </aside>
+
+    <!-- PRAWA CZĘŚĆ (jak lista kart, tylko tabela w białej karcie) -->
+    <main class="admin-main">
+      <div class="admin-card">
+        <div class="admin-card__head">
+          <h2>Rezerwacje noclegów</h2>
+          <div class="admin-badges">
+            <span class="badge"><i class="ri-database-2-line"></i> /api/admin/dashboard</span>
+          </div>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="nowrap">ID</th>
+                <th class="nowrap">User</th>
+                <th>Gość</th>
+                <th class="nowrap">Telefon</th>
+                <th class="nowrap">Pokój</th>
+                <th>Typ</th>
+                <th class="nowrap">Check-in</th>
+                <th class="nowrap">Check-out</th>
+                <th class="nowrap">Osoby</th>
+                <th class="nowrap">Cena</th>
+                <th>Status</th>
+                <th class="nowrap">Utworzono</th>
+                <th>Uwagi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="13" class="muted">Ładowanie…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API = ""; // jeśli otwierasz frontend z backendu (http://localhost:3000/...) zostaw ""
+
+    async function request(url, opts){
+      try{
+        const r = await fetch(API + url, { credentials:"include", ...opts });
+        let body = {};
+        try{ body = await r.json(); }catch(e){}
+        return { ok:r.ok, status:r.status, body };
+      }catch(err){
+        return { ok:false, status:0, body:{ error:"Brak połączenia z backendem" } };
+      }
+    }
+
+    const el = (id)=> document.getElementById(id);
+    const state = { rows: [], filtered: [] };
+
+    function fmtDate(v){
+      if(!v) return "";
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleDateString("pl-PL");
+    }
+    function fmtMoney(v){
+      if(v === null || v === undefined || v === "") return "";
+      const n = Number(v);
+      return Number.isNaN(n) ? String(v) : n.toLocaleString("pl-PL",{minimumFractionDigits:2,maximumFractionDigits:2}) + " zł";
+    }
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function render(){
+      const rows = state.filtered;
+      el("countPill").textContent = rows.length + " rezerwacji";
+
+      const tbody = el("tbody");
+      if(!rows.length){
+        tbody.innerHTML = '<tr><td colspan="13" class="muted">Brak wyników.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => {
+        const guest = (String(r.first_name ?? "") + " " + String(r.last_name ?? "")).trim() || "(brak danych)";
+        const people = `${Number(r.adults ?? 0)} + ${Number(r.children ?? 0)}`;
+        const status = String(r.status ?? "");
+        return `
+          <tr>
+            <td class="nowrap">${escapeHtml(r.reservation_id ?? "")}</td>
+            <td class="nowrap">${escapeHtml(r.user_id ?? "")}</td>
+            <td>${escapeHtml(guest)}</td>
+            <td class="nowrap">${escapeHtml(r.phone ?? "")}</td>
+            <td class="nowrap">${escapeHtml(r.room_number ?? "")}</td>
+            <td>${escapeHtml(r.room_type ?? "")}</td>
+            <td class="nowrap">${fmtDate(r.check_in)}</td>
+            <td class="nowrap">${fmtDate(r.check_out)}</td>
+            <td class="nowrap">${people}</td>
+            <td class="nowrap">${fmtMoney(r.total_price)}</td>
+            <td><span class="badge">${escapeHtml(status)}</span></td>
+            <td class="nowrap">${fmtDate(r.created_at)}</td>
+            <td class="note-cell">${escapeHtml(r.notes ?? "") || '<span class="muted">—</span>'}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function apply(){
+      const q = el("q").value.trim().toLowerCase();
+      const st = el("status").value.trim().toLowerCase();
+      const sort = el("sort").value;
+
+      let rows = [...state.rows];
+
+      if(q){
+        rows = rows.filter(r => {
+          const hay = [
+            r.first_name, r.last_name, r.phone, r.room_number, r.room_type,
+            r.user_id, r.reservation_id, r.notes
+          ].join(" ").toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      if(st){
+        rows = rows.filter(r => String(r.status ?? "").toLowerCase() === st);
+      }
+
+      const t = (x) => new Date(x ?? 0).getTime();
+      if(sort === "check_in_asc") rows.sort((a,b)=> t(a.check_in)-t(b.check_in));
+      if(sort === "check_in_desc") rows.sort((a,b)=> t(b.check_in)-t(a.check_in));
+      if(sort === "created_desc") rows.sort((a,b)=> t(b.created_at)-t(a.created_at));
+      if(sort === "created_asc") rows.sort((a,b)=> t(a.created_at)-t(b.created_at));
+
+      state.filtered = rows;
+      render();
+    }
+
+    // ✅ sprawdzenie admina (musi zwracać user.isAdmin z /api/auth/me)
+    async function requireAdminOrRedirect(){
+      const me = await request("/api/auth/me");
+      if(!(me.ok && me.body?.user?.isAdmin === true)){
+        location.href = "logowanie.html";
+        return false;
+      }
+      el("adminWho").textContent = "Zalogowano jako ADMIN: " + (me.body.user.login || "admin");
+      return true;
+    }
+
+    async function load(){
+      el("msg").textContent = "";
+      const res = await request("/api/admin/dashboard");
+
+      if(res.status === 401 || res.status === 403){
+        location.href = "logowanie.html";
+        return;
+      }
+      if(!res.ok){
+        el("msg").textContent = res.body?.error || "Błąd pobierania danych";
+        el("tbody").innerHTML = '<tr><td colspan="13" class="muted">Nie udało się wczytać.</td></tr>';
+        return;
+      }
+
+      state.rows = Array.isArray(res.body?.reservations) ? res.body.reservations : [];
+      state.filtered = [...state.rows];
+      apply();
+    }
+
+    // events
+    el("refreshBtn").addEventListener("click", load);
+    el("q").addEventListener("input", apply);
+    el("status").addEventListener("change", apply);
+    el("sort").addEventListener("change", apply);
+
+    el("clearBtn").addEventListener("click", ()=>{
+      el("q").value = "";
+      el("status").value = "";
+      el("sort").value = "check_in_asc";
+      apply();
+    });
+
+    el("logoutBtn").addEventListener("click", async ()=>{
+      await request("/api/auth/logout", { method:"POST" });
+      location.href = "logowanie.html";
+    });
+
+    // hamburger
+    (function () {
+      const btn = document.getElementById("menu-btn");
+      const links = document.getElementById("nav--links");
+      if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
+    })();
+
+    (async ()=>{
+      const ok = await requireAdminOrRedirect();
+      if(ok) await load();
+    })();
+  </script>
+</body>
+</html>

@@ -128,6 +128,23 @@ app.post("/api/auth/login", async (req, res) => {
   const { login, password } = req.body || {};
   if (!login || !password) return res.status(400).json({ error: "Brak danych" });
 
+  // ✅ ADMIN (prosty wariant do projektu)
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@gmail.com";
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+
+  if (login === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    req.session.user = {
+      id: 2,
+      login: ADMIN_EMAIL,
+      isAdmin: true,
+    };
+
+    return req.session.save((err) => {
+      if (err) return res.status(500).json({ error: "Session save error" });
+      return res.json({ ok: true, user: req.session.user });
+    });
+  }
+  // ✅ NORMALNY USER (z bazy)
   try {
     const pool = await poolPromise;
 
@@ -148,7 +165,11 @@ app.post("/api/auth/login", async (req, res) => {
     const ok = bcrypt.compareSync(password, user.PasswordHash);
     if (!ok) return res.status(401).json({ error: "Zły login lub hasło" });
 
-    req.session.user = { id: user.UserID, login: user.Email };
+    req.session.user = {
+      id: user.UserID,
+      login: user.Email,
+      isAdmin: false, // ✅ ważne
+    };
 
     req.session.save((err) => {
       if (err) return res.status(500).json({ error: "Session save error" });
@@ -159,11 +180,13 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+
 // kim jestem
 app.get("/api/auth/me", (req, res) => {
-  if (!req.session?.user) return res.status(401).json({ error: "Brak sesji" });
-  res.json({ ok: true, user: req.session.user });
+  if (!req.session?.user) return res.status(401).json({error: "Brak sesji" });
+  return res.json({ ok: true, user: req.session.user });
 });
+
 
 // wyloguj
 app.post("/api/auth/logout", (req, res) => {
@@ -515,11 +538,51 @@ app.get("/api/events/my", requireAuth, async (req, res) => {
     res.json({ ok: true, items: r.recordset });
   } catch (e) {
     console.error("Błąd /api/events/my:", e);
+    console.error("events/signup error:", {
+    message: e.message,
+    number: e.number,
+    code: e.code
+  });
     res.status(500).json({ error: "DB error (events/my)", details: e.message });
   }
 });
 
-// dashboard (jeśli gdzieś używasz)
+app.get("/api/admin/dashboard", requireAuth, async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const reservationsQ = await pool.request().query(`
+      SELECT
+        rn.RezerwacjaNocleguID AS reservation_id,
+        rn.UserID AS user_id,
+
+        rn.Imie AS first_name,
+        rn.Nazwisko AS last_name,
+        rn.Telefon AS phone,
+        rn.Uwagi AS notes,
+
+        rn.DataZameldowania AS check_in,
+        rn.DataWymeldowania AS check_out,
+        rn.LiczbaOsobDoroslych AS adults,
+        rn.LiczbaDzieci AS children,
+        rn.CenaCalkowita AS total_price,
+        rn.StatusRezerwacji AS status,
+        rn.DataUtworzenia AS created_at,
+
+        p.NumerPokoju AS room_number,
+        p.TypPokoju AS room_type
+      FROM dbo.RezerwacjeNoclegow rn
+      JOIN dbo.Pokoje p ON p.PokojID = rn.PokojID
+      ORDER BY rn.DataZameldowania ASC;
+    `);
+
+    return res.json({ ok: true, reservations: reservationsQ.recordset });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
+
 app.get("/api/user/dashboard", requireAuth, async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -551,7 +614,6 @@ app.get("/api/user/dashboard", requireAuth, async (req, res) => {
         JOIN dbo.Wydarzenia w ON w.WydarzenieID = z.WydarzenieID
         JOIN dbo.SlotyWydarzen s ON s.SlotID = z.SlotID
         WHERE z.UserID = @UserID
-          AND s.Godzina >= CAST(GETDATE() as TIME)
         ORDER BY s.Godzina ASC;
       `);
 

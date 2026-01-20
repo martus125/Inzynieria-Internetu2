@@ -537,9 +537,10 @@
       )
     ).join("");
   }
-
+  console.log("ME:", me.status, me.ok, me.body);
+console.log("DASH:", dash.status, dash.ok, dash.body);
   // --- render eventów ---
-  // działa ;)
+  // 
   if(!events.length){
     renderEmpty(upEventsEl, "Brak najbliższych eventów");
     } else {
