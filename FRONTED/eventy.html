@@ -183,7 +183,6 @@
     if (btn && links) btn.addEventListener("click", () => links.classList.toggle("open"));
   })();
 
-  // ===== obrazki: próbuj jpg -> png -> webp -> jpeg, a na końcu OGNI SKO =====
   window.__imgFallback = function(img){
     const exts = ["jpg","png","webp","jpeg"];
     let base = img.getAttribute("data-base");
@@ -538,7 +537,7 @@
     ).join("");
   }
   console.log("ME:", me.status, me.ok, me.body);
-console.log("DASH:", dash.status, dash.ok, dash.body);
+  console.log("DASH:", dash.status, dash.ok, dash.body);
   // --- render eventów ---
   // 
   if(!events.length){
